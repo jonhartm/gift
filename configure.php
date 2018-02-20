@@ -26,7 +26,7 @@ if ( isset($_POST['gift']) ) {
     }
 
     // This is not JSON - no one cares
-    $LINK->setJson($gift);
+    $LINK->setJsonKey('quiz', $gift);
     $_SESSION['success'] = 'Quiz updated';
     unset($_SESSION['gift']);
     header( 'Location: '.addSession('index.php') ) ;
@@ -95,7 +95,7 @@ if ( isset($_SESSION['gift']) ) {
     $gift = $_SESSION['gift'];
     unset($_SESSION['gift']);
 } else {
-    $gift = $LINK->getJson();
+    $gift = $LINK->getJsonKey('quiz');
 }
 
 // Clean up the JSON for presentation

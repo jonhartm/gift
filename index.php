@@ -49,7 +49,7 @@ if ( is_numeric($delay_str) ) $delay = $delay_str+0;
 $dueDate = SettingsForm::getDueDate();
 
 // Load the quiz
-$gift = $LINK->getJson();
+$gift = $LINK->getJsonKey('quiz');
 
 // parse the quiz questions
 $questions = false;

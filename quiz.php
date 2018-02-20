@@ -6,7 +6,7 @@ use \Tsugi\Core\LTIX;
 use \Tsugi\UI\Output;
 
 $LAUNCH = LTIX::requireData();
-$gift = $LINK->getJson();
+$gift = $LINK->getJsonKey('quiz');
 
 Output::headerJson();
 
