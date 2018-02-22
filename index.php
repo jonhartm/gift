@@ -1,6 +1,7 @@
 <?php
 require_once "../config.php";
 require_once "parse.php";
+require_once "parse_results.php";
 
 use \Tsugi\Util\LTI;
 use \Tsugi\Core\Settings;
@@ -101,6 +102,8 @@ if ( count($_POST) > 0 ) {
 
     $_SESSION['gift_submit'] = $_POST;
     $quiz = make_quiz($_POST, $questions, $errors);
+
+    $LINK->setJsonKey('results', parse_results($LINK->getJsonKey('results'), $quiz, $questions));
 
     $gradetosend = $quiz['score']*1.0;
     $scorestr = "Your score of ".percent($gradetosend)." has been saved.";
