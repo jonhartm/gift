@@ -1,5 +1,5 @@
 <?php
-function parse_results(&$saved_results, $submit_results, $parsed_questions) {
+function parse_results($saved_results, $submit_results, $parsed_questions) {
   // Match the submitted data to the questions
   // T/F & short answer are straightforward
   // MC/MA the answers have to be matched from the question
@@ -37,6 +37,7 @@ function parse_results(&$saved_results, $submit_results, $parsed_questions) {
       }
     }
   }
+  return $saved_results;
 }
 
 function create_blank_results($parsed_questions) {

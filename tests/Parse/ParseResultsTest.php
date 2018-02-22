@@ -59,7 +59,7 @@ class ParseResults extends PHPUnit_Framework_TestCase
           )
         )
       );
-      parse_results($overalls, $results, $questions);
+      $overalls = parse_results($overalls, $results, $questions);
 
       $this->assertEquals($overalls["1:0cfae3833"]["responses"]["T"], 9);
       $this->assertEquals($overalls["1:0cfae3833"]["responses"]["F"], 1);
@@ -99,7 +99,7 @@ class ParseResults extends PHPUnit_Framework_TestCase
 
       $overalls = false;
 
-      parse_results($overalls, $results, $questions);
+      $overalls = parse_results($overalls, $results, $questions);
 
       // Check that the $overalls were created correctly
       $this->assertEquals($overalls['1:0cfae3833']["correct_answer"], array("T"));
