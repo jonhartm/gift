@@ -114,4 +114,29 @@ class ParseResults extends PHPUnit_Framework_TestCase
       $this->assertEquals($overalls["3:ae43574bc"]["responses"]["Correct"], 1);
       $this->assertEquals($overalls["4:3243f1f11"]["responses"]['2'], 1);
     }
+
+    public function test_ParseResults_IncompleteSubmission() {
+      $gift = file_get_contents('.\tests\Parse\good_gift.gift');
+      $questions = false;
+      $errors = [];
+      parse_gift($gift, $questions, $errors); # parse the gift
+
+      $submit = array( // the user did not answer questions 2 and 3
+        'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
+        '1:0cfae3833'=>'F',
+        '4:3243f1f11'=>'threeve'
+      );
+      $_SESSION['gift_submit'] = $submit;
+      $results = make_quiz($_SESSION['gift_submit'], $questions, $errors);
+
+      $overalls = false;
+
+      $overalls = parse_results($overalls, $results, $questions);
+
+      // Check that the answers were added correctly
+      $this->assertEquals($overalls["1:0cfae3833"]["responses"]["F"], 1);
+      $this->assertEquals($overalls["2:11510fc8c"]["responses"]["no answer"], 1);
+      $this->assertEquals($overalls["3:ae43574bc"]["responses"]["no answer"], 1);
+      $this->assertEquals($overalls["4:3243f1f11"]["responses"]['threeve'], 1);
+    }
 }

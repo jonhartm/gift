@@ -8,6 +8,12 @@ function parse_results($saved_results, $submit_results, $parsed_questions) {
     $saved_results = create_blank_results($parsed_questions);
   }
 
+  // make a quick array of question code => bool so we can see if any quesions weren't answered
+  $answered_questions = array();
+  foreach ($saved_results as $q_code => $responses) {
+    $answered_questions[$q_code] = false;
+  }
+
   foreach ($submit_results['submit'] as $q_code => $a_code) {
     if ($q_code != "PHPSESSID") { // ignore the session ID
       // roll through the parsed questions to find the matching question
@@ -35,8 +41,18 @@ function parse_results($saved_results, $submit_results, $parsed_questions) {
         // There are only four question types at the moment
         throw new Exception("Unknown question type");
       }
+      // Mark this quesiton as answered
+      $answered_questions[$q_code] = true;
     }
   }
+
+  // Go through the answered questions array and mark any questions that weren't answered as "no answer"
+  foreach ($answered_questions as $q_code => $answered) {
+    if (!$answered) {
+      update_results($saved_results, $q_code, "no answer");
+    }
+  }
+
   return $saved_results;
 }
 
