@@ -22,7 +22,13 @@ function parse_results($saved_results, $submit_results, $parsed_questions) {
 
       if ($current_question->type == "true_false_question" || // T/F and SA submits are straightforward
         $current_question->type == "short_answer_question") {
-          update_results($saved_results, $q_code, $a_code);
+          if (strlen($a_code) == 0) {
+            // Short answers still get submitted even if they're blank, just as a q_code with a value of ''.
+            // If this is the case, insert a no answer here, since it won't get caught by the $answered_questions array later.
+            update_results($saved_results, $q_code, "no answer");
+          } else {
+            update_results($saved_results, $q_code, $a_code);
+          }
       } elseif ($current_question->type == "multiple_choice_question") {
         // Find the response text for this question in the parsed questions
         foreach ($current_question->parsed_answer as $parsed_answer) {

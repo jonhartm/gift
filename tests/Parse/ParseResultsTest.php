@@ -124,7 +124,7 @@ class ParseResults extends PHPUnit_Framework_TestCase
       $submit = array( // the user did not answer questions 2 and 3
         'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
         '1:0cfae3833'=>'F',
-        '4:3243f1f11'=>'threeve'
+        '4:3243f1f11'=>''
       );
       $_SESSION['gift_submit'] = $submit;
       $results = make_quiz($_SESSION['gift_submit'], $questions, $errors);
@@ -137,6 +137,6 @@ class ParseResults extends PHPUnit_Framework_TestCase
       $this->assertEquals($overalls["1:0cfae3833"]["responses"]["F"], 1);
       $this->assertEquals($overalls["2:11510fc8c"]["responses"]["no answer"], 1);
       $this->assertEquals($overalls["3:ae43574bc"]["responses"]["no answer"], 1);
-      $this->assertEquals($overalls["4:3243f1f11"]["responses"]['threeve'], 1);
+      $this->assertEquals($overalls["4:3243f1f11"]["responses"]["no answer"], 1);
     }
 }
