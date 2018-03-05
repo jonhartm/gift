@@ -85,11 +85,12 @@ function create_blank_results($parsed_questions) {
     }
     // append this results array using the question code as the key
     $new_results[$question->code] = array(
+      'name' => $question->name,
+      'text' => $question->question,
       'correct_answer' => $correct_answer,
       'responses' => array()
     );
   }
-
   return $new_results;
 }
 

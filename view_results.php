@@ -77,7 +77,7 @@ function create_chart(canvasID, results) {
     options: {
       title: {
         display: true,
-        text: 'other'
+        text: results['name'] + ": " + results['text']
       },
       legend: {
         display: false,
