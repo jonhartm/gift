@@ -31,9 +31,13 @@ $OUTPUT->footerStart();
 // Draw a chart for each of the results in the results data
 function drawCharts() {
   $.getJSON("<?= addSession('results_data.php') ?>", function(resultData) {
-    for (var q_code in resultData) {
-      $("#chartWrapper").append("<canvas class='chart' id=" + q_code + "></canvas>");
-      create_chart(q_code, resultData[q_code]);
+    if (!resultData){
+      $("#chartWrapper").html("No results have been recorded...");
+    } else {
+      for (var q_code in resultData) {
+        $("#chartWrapper").append("<canvas class='chart' id=" + q_code + "></canvas>");
+        create_chart(q_code, resultData[q_code]);
+      }
     }
   });
 }
