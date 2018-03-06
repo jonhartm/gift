@@ -51,6 +51,13 @@ $dueDate = SettingsForm::getDueDate();
 
 // Load the quiz
 $gift = $LINK->getJsonKey('quiz');
+if (!$gift) {
+  // This is either an old-style quiz in plaintext or the json field is totally blank.
+  // try and load the whole quiz and store it as a json object with the key 'quiz'
+  $_SESSION['success'] = 'upgrading quiz storage...';
+  $LINK->setJsonKey('quiz', $LINK->getJson());
+  $gift = $LINK->getJsonKey('quiz');
+}
 
 // parse the quiz questions
 $questions = false;
