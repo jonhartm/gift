@@ -94,7 +94,6 @@ function create_chart(canvasID, results) {
 
     // Configuration options go here
     options: {
-      responsiveAnimationDuration:1000, // fixes the canvas fighting with the frame and resizing constantly
       title: {
         display: true,
         text: results['name'] + ": " + results['text']
