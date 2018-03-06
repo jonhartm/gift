@@ -57,7 +57,7 @@ function create_chart(canvasID, results) {
   result_bg_color = [];
   result_border_color = [];
 
-  for (var result in sortable) {
+  for (var result in sortable.slice(0,15)) {
     console.log(sortable[result]);
     result_labels.push(sortable[result][0]); // the response that was made
     result_data.push(sortable[result][1]); // the number of responses
