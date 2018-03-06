@@ -40,6 +40,9 @@ function parse_results($saved_results, $submit_results, $parsed_questions) {
         // the q_code for MA questions is actually the code for the matching answer in $parsed_questions
         foreach ($current_question->parsed_answer as $parsed_answer) {
           if ($parsed_answer[3] == $q_code) {
+            // because of the way the submit handles MA responses, we need to affirm that this question was answered here
+            // $q_code will be something like 3:1:92b09c, which pertains to the selected answer, wheras the question code is actually 3:ae43574bc
+            $answered_questions[$current_question->code] = true;
             update_results($saved_results, $current_question->code, $parsed_answer[1]);
           }
         }
