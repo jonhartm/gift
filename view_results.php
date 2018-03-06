@@ -41,20 +41,32 @@ function drawCharts() {
 function create_chart(canvasID, results) {
   var ctx = document.getElementById(canvasID).getContext('2d');
 
+  // convert the results object into a sortable array like [[k,v][k,v]]
+  var sortable = [];
+  for (var r in results['responses']) {
+      sortable.push([r, results['responses'][r]]);
+  }
+
+  // reverse the array after sorting it by the value
+  sortable.sort(function(a, b) {
+      return a[1] - b[1];
+  }).reverse();
+
   result_labels = [];
   result_data = [];
   result_bg_color = [];
   result_border_color = [];
 
-  for (var result in results['responses']) {
-    result_labels.push(result); // the response that was made
-    result_data.push(results['responses'][result]); // the number of responses
+  for (var result in sortable) {
+    console.log(sortable[result]);
+    result_labels.push(sortable[result][0]); // the response that was made
+    result_data.push(sortable[result][1]); // the number of responses
 
-    if (results['correct_answer'].indexOf(result) != -1) {
+    if (results['correct_answer'].indexOf(sortable[result][0]) != -1) {
       // If it's a correct answer, make the bar green
       result_bg_color.push('rgba(0, 255, 0, 0.2)');
       result_border_color.push('rgba(0, 255, 0, 0.5)');
-    } else if (result == "no answer") {
+    } else if (sortable[result][0] == "no answer") {
       // If it's a no answer, make the bar gray
       result_bg_color.push('rgba(200, 200, 200, 0.2)');
       result_border_color.push('rgba(200, 200, 200, 0.5)');
