@@ -9,6 +9,13 @@ $LAUNCH = LTIX::requireData();
 if ( ! $USER->instructor ) die("Requires instructor role");
 
 $OUTPUT->header();
+?>
+<style>
+  .chart {
+    margin: 75px 0px;
+  }
+</style>
+<?php
 $OUTPUT->bodyStart();
 $OUTPUT->topNav();
 
@@ -25,7 +32,7 @@ $OUTPUT->footerStart();
 function drawCharts() {
   $.getJSON("<?= addSession('results_data.php') ?>", function(resultData) {
     for (var q_code in resultData) {
-      $("#chartWrapper").append("<canvas id=" + q_code + "></canvas>");
+      $("#chartWrapper").append("<canvas class='chart' id=" + q_code + "></canvas>");
       create_chart(q_code, resultData[q_code]);
     }
   });
