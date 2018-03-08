@@ -21,7 +21,7 @@ $OUTPUT->topNav();
 
 ?>
 <a href="index" class="btn btn-default">Return</a>
-<div id="chartWrapper" style="width: 70%; margin: auto;"></div>
+<div id="chartWrapper" style="width: 90%; margin: auto;"></div>
 <?php
 
 $OUTPUT->footerStart();
@@ -34,16 +34,32 @@ function drawCharts() {
     if (!resultData){
       $("#chartWrapper").html("No results have been recorded...");
     } else {
+      // Compile the handlebars template
+      var source = document.getElementById("accordion-template").innerHTML;
+      var template = Handlebars.compile(source);
       for (var q_code in resultData) {
-        $("#chartWrapper").append("<canvas class='chart' id=" + q_code + "></canvas>");
+        var div_title = resultData[q_code]['name'] + ": " + resultData[q_code]['text'];
+        $("#chartWrapper").append(template({title:div_title , body:"testBody", canvas_id:q_code}));
         create_chart(q_code, resultData[q_code]);
       }
+      // Function that creates the accordion behavior
+      $(function() {
+        $(".accordion").accordion({
+          active:false,
+          collapsible:true
+        });
+      });
     }
   });
 }
 
+// Create a single chart from data recieved in results_data.php
 function create_chart(canvasID, results) {
   var ctx = document.getElementById(canvasID).getContext('2d');
+
+  // not the actual h/w of the chart, but sets the aspect ratio
+  ctx.canvas.width = 400;
+  ctx.canvas.height = 100;
 
   // convert the results object into a sortable array like [[k,v][k,v]]
   var sortable = [];
@@ -117,7 +133,21 @@ function create_chart(canvasID, results) {
   });
 }
 
+
 $(document).ready( drawCharts() );
 </script>
+
+
+<!-- handlebars template for the accordion -->
+<script id="accordion-template" type="text/x-handlebars-template">
+  <div class="accordion">
+    <h3>{{title}}</h3>
+    <div>
+      <!-- <p>{{body}}</p> -->
+      <canvas class='chart' id={{canvas_id}}></canvas>
+    </div>
+  </div>
+</script>
+
 <?php
 $OUTPUT->footerEnd();
