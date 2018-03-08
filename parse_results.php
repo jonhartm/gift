@@ -1,4 +1,7 @@
 <?php
+// $saved_results: The quiz results that are stored in the JSON at the moment. ("false" if none are present)
+// $submit_results: The results from the user's submitted quiz. Returned from make_quiz()
+// $parsed_questions: the parsed gift quiz. Returned from parse_gift()
 function parse_results($saved_results, $submit_results, $parsed_questions) {
   // Match the submitted data to the questions
   // T/F & short answer are straightforward
@@ -6,6 +9,13 @@ function parse_results($saved_results, $submit_results, $parsed_questions) {
   if (!$saved_results) {
     // Create a new saved results variable
     $saved_results = create_blank_results($parsed_questions);
+  }
+
+  // Check to see if the questions still match the results
+  foreach ($parsed_questions as $q_data) {
+    if (!array_key_exists($q_data->code, $saved_results)) { // If we don't find this question in the results...
+      $saved_results[$q_data->code] = create_blank_entry($q_data); // add a new blank entry with this question's data
+    }
   }
 
   // make a quick array of question code => bool so we can see if any quesions weren't answered
@@ -68,33 +78,39 @@ function parse_results($saved_results, $submit_results, $parsed_questions) {
 function create_blank_results($parsed_questions) {
   $new_results = array();
   foreach ($parsed_questions as $question) {
-    // find the correct answer in the question array
-    if ($question->type == 'true_false_question') {
-      $correct_answer = array($question->answer); // T/F questions just state it
-      // TODO - I would just used the following loop for T/F as well, but it appears "parsed_answer" isn't actually the answer to the question?
-    } elseif ($question->type == 'multiple_choice_question' ||
-      $question->type == 'multiple_answers_question' ||
-      $question->type == 'short_answer_question') {
-      $correct_answer = array();
-      // the correct answer is the parsed answer where the first value in the array is true
-      foreach ($question->parsed_answer as $possible_answer) {
-        if ($possible_answer[0]) {
-          array_push($correct_answer, $possible_answer[1]);
-        }
-      }
-    } else {
-      // Any other question types can be added here
-      throw new Exception("Unknown question type");
-    }
     // append this results array using the question code as the key
-    $new_results[$question->code] = array(
-      'name' => $question->name,
-      'text' => $question->question,
-      'correct_answer' => $correct_answer,
-      'responses' => array()
-    );
+    $new_results[$question->code] = create_blank_entry($question);
   }
   return $new_results;
+}
+
+// Create a single blank entry for storing in the result array
+// requres a single value from the $parsed_questions returned by parse_gift()
+function create_blank_entry($question_data) {
+  if ($question_data->type == 'true_false_question') {
+    $correct_answer = array($question_data->answer); // T/F questions just state it
+    // TODO - I would just used the following loop for T/F as well, but it appears "parsed_answer" isn't actually the answer to the question?
+  } elseif ($question_data->type == 'multiple_choice_question' ||
+    $question_data->type == 'multiple_answers_question' ||
+    $question_data->type == 'short_answer_question') {
+    $correct_answer = array();
+    // the correct answer is the parsed answer where the first value in the array is true
+    foreach ($question_data->parsed_answer as $possible_answer) {
+      if ($possible_answer[0]) {
+        array_push($correct_answer, $possible_answer[1]);
+      }
+    }
+  } else {
+    // Any other question types can be added here
+    throw new Exception("Unknown question type");
+  }
+
+  return array(
+      'name' => $question_data->name,
+      'text' => $question_data->question,
+      'correct_answer' => $correct_answer,
+      'responses' => array()
+  );
 }
 
 function update_results(&$saved_results, $q_code, $submitted_answer) {
