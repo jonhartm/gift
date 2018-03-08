@@ -18,6 +18,21 @@ function parse_results($saved_results, $submit_results, $parsed_questions) {
     }
   }
 
+  // Check to see if any results are now for questions that aren't being asked
+  foreach ($saved_results as $result_q_code => $value) {
+    $found = false;
+    foreach ($parsed_questions as $q_data) {
+      if ($q_data->code == $result_q_code) {
+        $found = true;
+        break; // jump out early if we found a matching pair of keys
+      }
+    }
+    if (!$found) {
+      // we didn't find this question key, so dump the results for the question
+      unset($saved_results[$result_q_code]);
+    }
+  }
+
   // make a quick array of question code => bool so we can see if any quesions weren't answered
   $answered_questions = array();
   foreach ($saved_results as $q_code => $responses) {

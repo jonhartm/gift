@@ -1,0 +1,18 @@
+// true/false
+::Q1 T/F:: 1+1=2 {T}
+
+// multiple choice
+::Q2 MA:: One of these are right and three are wrong
+{
+=Right
+~Wrong
+~Incorrect
+~Not right
+}
+
+// multiple choice with multiple right and wrong
+::Q3 MA:: Two of these are right and two are wrong
+{ =Right =Correct ~Wrong ~Incorrect }
+
+// Adding a new question
+::Q4 Short Answer:: I've added a {=new} question in place of the old one.

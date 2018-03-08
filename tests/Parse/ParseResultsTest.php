@@ -191,4 +191,65 @@ class ParseResults extends PHPUnit_Framework_TestCase
       $this->assertEquals($overalls['4:3243f1f11']["correct_answer"], array("two", "2"));
       $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>1));
     }
+
+    public function test_QuestionRemoved() {
+      $gift = file_get_contents('.\tests\Parse\altered_gift.gift');
+      $questions = false;
+      $errors = [];
+      parse_gift($gift, $questions, $errors); # parse the gift
+
+      $submit = array( // a submit for a perfect score
+        'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
+        '1:0cfae3833'=>'T',
+        '2:11510fc8c'=>'2:1:92b09c',
+        '3:1:92b09c'=>'true',
+        '3:2:d0a389'=>'true',
+        '4:661a455e8'=>'new'
+      );
+      $_SESSION['gift_submit'] = $submit;
+      $results = make_quiz($_SESSION['gift_submit'], $questions, $errors);
+
+      $overalls = array(
+        "1:0cfae3833"=> array(
+          "correct_answer"=>array("T"),
+          "responses" => array(
+            "T"=>8,
+            "F"=>1
+          )
+        ),
+        "2:11510fc8c"=> array(
+          "correct_answer"=>array("Right"),
+          "responses" => array(
+            "Right"=>6,
+            "Wrong"=>2,
+            "Incorrect"=>1,
+            "Not right"=>0
+          )
+        ),
+        "3:ae43574bc"=> array(
+          "correct_answer"=> array("Right", "Correct"),
+          "responses" => array(
+            "Right"=>8,
+            "Correct"=>5,
+            "Wrong"=>3,
+            "Incorrect"=>6
+          )
+        ),
+        "4:3243f1f11"=> array(
+          "correct_answer"=> array("2", "two"),
+          "responses" => array(
+            "2"=>4,
+            "two"=>3,
+            "4"=>1,
+            "tow"=>1
+          )
+        )
+      );
+      $overalls = parse_results($overalls, $results, $questions);
+
+      $this->assertArrayNotHasKey("4:3243f1f11", $overalls);
+      $this->assertEquals($overalls['4:661a455e8']["correct_answer"], array("new"));
+      $this->assertEquals($overalls['4:661a455e8']["responses"], array("new"=>1));
+
+    }
 }
