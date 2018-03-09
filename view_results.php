@@ -32,14 +32,14 @@ $OUTPUT->footerStart();
 function drawCharts() {
   $.getJSON("<?= addSession('results_data.php') ?>", function(resultData) {
     if (!resultData){
-      $("#chartWrapper").html("No results have been recorded...");
+      $("#chartWrapper").html("No results have been recorded..."); // In the event there are no results and we try to check
     } else {
       // Compile the handlebars template
       var source = document.getElementById("accordion-template").innerHTML;
       var template = Handlebars.compile(source);
       for (var q_code in resultData) {
-        var div_title = resultData[q_code]['name'] + ": " + resultData[q_code]['text'];
-        $("#chartWrapper").append(template({title:div_title , body:"testBody", canvas_id:q_code}));
+        var div_title = resultData[q_code]['name'] + ": " + resultData[q_code]['text']; // The title for each accordion is the question title and text
+        $("#chartWrapper").append(template({title:div_title , body:"testBody", canvas_id:q_code})); // append the handlebars template to the chart wrapper
         create_chart(q_code, resultData[q_code]);
       }
       // Function that creates the accordion behavior
@@ -61,17 +61,13 @@ function create_chart(canvasID, results) {
   ctx.canvas.width = 400;
   ctx.canvas.height = 100;
 
-  console.log(results);
   // convert the results object into a sortable array like [[k,v][k,v]]
   var sortable = [];
   for (var r in results['responses']) {
-    console.log("r is " + r);
-    console.log(results['responses'][r]);
     var sum = 0
-    for (var attempt in results['responses'][r]) {
+    for (var attempt in results['responses'][r]) { // since the responses are stored in an array indexed by attempt, for now just add up all the values in the array
       sum+=results['responses'][r][attempt];
     }
-    console.log(sum);
     sortable.push([r, sum]);
   }
 
@@ -140,10 +136,8 @@ function create_chart(canvasID, results) {
   });
 }
 
-
 $(document).ready( drawCharts() );
 </script>
-
 
 <!-- handlebars template for the accordion -->
 <script id="accordion-template" type="text/x-handlebars-template">

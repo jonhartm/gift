@@ -100,6 +100,7 @@ function get_score_by_question($question_code, $submit_results) {
   return false;
 }
 
+// Used when we don't have a results json stored yet - create a new one based on the parsed questions
 function create_blank_results($parsed_questions) {
   $new_results = array();
   foreach ($parsed_questions as $question) {
@@ -138,6 +139,7 @@ function create_blank_entry($question_data) {
   );
 }
 
+// the function that actually does work - adds the response to the saved results array in the proper location
 function update_results(&$saved_results, $q_code, $submitted_answer, $attempt_number) {
   // roll through each of the saved results to see what question this matches
   foreach ($saved_results as $question_results_code => &$question_results) {
