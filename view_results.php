@@ -61,10 +61,18 @@ function create_chart(canvasID, results) {
   ctx.canvas.width = 400;
   ctx.canvas.height = 100;
 
+  console.log(results);
   // convert the results object into a sortable array like [[k,v][k,v]]
   var sortable = [];
   for (var r in results['responses']) {
-      sortable.push([r, results['responses'][r]]);
+    console.log("r is " + r);
+    console.log(results['responses'][r]);
+    var sum = 0
+    for (var attempt in results['responses'][r]) {
+      sum+=results['responses'][r][attempt];
+    }
+    console.log(sum);
+    sortable.push([r, sum]);
   }
 
   // reverse the array after sorting it by the value
@@ -78,7 +86,6 @@ function create_chart(canvasID, results) {
   result_border_color = [];
 
   for (var result in sortable.slice(0,15)) {
-    console.log(sortable[result]);
     result_labels.push(sortable[result][0]); // the response that was made
     result_data.push(sortable[result][1]); // the number of responses
 
