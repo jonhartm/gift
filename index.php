@@ -110,7 +110,7 @@ if ( count($_POST) > 0 ) {
     $_SESSION['gift_submit'] = $_POST;
     $quiz = make_quiz($_POST, $questions, $errors);
 
-    $LINK->setJsonKey('results', parse_results($LINK->getJsonKey('results'), $quiz, $questions));
+    $LINK->setJsonKey('results', parse_results($LINK->getJsonKey('results'), $quiz, $questions, $tries));
 
     $gradetosend = $quiz['score']*1.0;
     $scorestr = "Your score of ".percent($gradetosend)." has been saved.";

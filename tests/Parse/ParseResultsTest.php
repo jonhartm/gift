@@ -61,58 +61,40 @@ class ParseResults extends PHPUnit_Framework_TestCase
         "1:0cfae3833"=> array(
           "correct_answer"=>array("T"),
           "responses" => array(
-            "T"=>8,
-            "F"=>1
-          ),
-          "attempts" => array(
-            1=>[7, 6], // 7 of 6 got it right the first time
-            2=>[7, 7] // 1 out of 1 got it right the second time
+            "T"=>array(8),
+            "F"=>array(1)
           )
         ),
         "2:11510fc8c"=> array(
           "correct_answer"=>array("Right"),
           "responses" => array(
-            "Right"=>6,
-            "Wrong"=>2,
-            "Incorrect"=>1,
-            "Not right"=>0
-          ),
-          "attempts" => array(
-            1=>[7, 4],
-            2=>[7, 6],
-            3=>[7, 7]
+            "Right"=>array(6),
+            "Wrong"=>array(2),
+            "Incorrect"=>array(1),
+            "Not right"=>array(0)
           )
         ),
         "3:ae43574bc"=> array(
           "correct_answer"=> array("Right", "Correct"),
           "responses" => array(
-            "Right"=>8,
-            "Correct"=>5,
-            "Wrong"=>3,
-            "Incorrect"=>6
-          ),
-          "attempts" => array(
-            1=>[7, 1],
-            2=>[7, 3],
-            3=>[7, 4],
-            4=>[7, 6],
-            5=>[7, 6],
-            6=>[7, 7]
+            "Right"=>array(8),
+            "Correct"=>array(5),
+            "Wrong"=>array(3),
+            "Incorrect"=>array(6)
           )
         ),
         "4:3243f1f11"=> array(
           "correct_answer"=> array("2", "two"),
           "responses" => array(
-            "2"=>4,
-            "two"=>3,
-            "4"=>1,
-            "tow"=>1
-          ),
-          "attempts" => array(
-            1=>[7, 3],
-            2=>[7, 6],
-            3=>[7, 7]
+            "2"=>array(4),
+            "two"=>array(3),
+            "4"=>array(1),
+            "tow"=>array(1)
           )
+        ),
+        "overall"=>array(
+          "submits"=>[9],
+          "cumulative_score"=>[26]
         )
       );
 
@@ -126,14 +108,14 @@ class ParseResults extends PHPUnit_Framework_TestCase
       );
     }
 
-  private function create_overalls($gift, $submit, $overalls)
+  private function create_overalls($gift, $submit, $overalls, $attempt=0)
   {
     $questions = false;
     $errors = [];
     parse_gift($gift, $questions, $errors);
     $_SESSION['gift_submit'] = $submit;
     $results = make_quiz($_SESSION['gift_submit'], $questions, $errors);
-    return parse_results($overalls, $results, $questions);
+    return parse_results($overalls, $results, $questions, $attempt);
   }
 
   // Test that we can successfully add to an existing result
@@ -141,10 +123,43 @@ class ParseResults extends PHPUnit_Framework_TestCase
     $gift = file_get_contents('.\tests\Parse\good_gift.gift');
     $overalls = $this->create_overalls($gift, $this->perfect_submit, $this->sample_overalls);
 
-    $this->assertEquals($overalls["1:0cfae3833"]["responses"], array("T"=>9, "F"=>1));
-    $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("Right"=>7, "Wrong"=>2, "Incorrect"=>1, "Not right"=>0));
-    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("Right"=>9, "Correct"=>6, "Wrong"=>3, "Incorrect"=>6));
-    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>5, "two"=>3, "4"=>1, "tow"=>1));
+    $this->assertEquals($overalls["1:0cfae3833"]["responses"], array("T"=>array(9), "F"=>array(1)));
+    $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("Right"=>array(7), "Wrong"=>array(2), "Incorrect"=>array(1), "Not right"=>array(0)));
+    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("Right"=>array(9), "Correct"=>array(6), "Wrong"=>array(3), "Incorrect"=>array(6)));
+    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>array(5), "two"=>array(3), "4"=>array(1), "tow"=>array(1)));
+
+    // a second submit by the same user
+    $overalls = $this->create_overalls($gift, $this->perfect_submit, $overalls, 1);
+
+    $this->assertEquals($overalls["1:0cfae3833"]["responses"], array("T"=>array(9, 1), "F"=>array(1)));
+    $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("Right"=>array(7, 1), "Wrong"=>array(2), "Incorrect"=>array(1), "Not right"=>array(0)));
+    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("Right"=>array(9, 1), "Correct"=>array(6, 1), "Wrong"=>array(3), "Incorrect"=>array(6)));
+    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>array(5, 1), "two"=>array(3), "4"=>array(1), "tow"=>array(1)));
+
+    // a third submission, same submit
+    $overalls = $this->create_overalls($gift, $this->perfect_submit, $overalls, 2);
+
+    $this->assertEquals($overalls["1:0cfae3833"]["responses"], array("T"=>array(9, 1, 1), "F"=>array(1)));
+    $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("Right"=>array(7, 1, 1), "Wrong"=>array(2), "Incorrect"=>array(1), "Not right"=>array(0)));
+    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("Right"=>array(9, 1, 1), "Correct"=>array(6, 1, 1), "Wrong"=>array(3), "Incorrect"=>array(6)));
+    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>array(5, 1, 1), "two"=>array(3), "4"=>array(1), "tow"=>array(1)));
+
+    // a fourth submission - another user, different gift
+    $submit = array( // a submit for all wrong answers
+      'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
+      '1:0cfae3833'=>'F',
+      '2:11510fc8c'=>'2:2:b35e5a',
+      '3:2:d0a389'=>'true',
+      '4:3243f1f11'=>'4'
+    );
+    $overalls = $this->create_overalls($gift, $submit, $overalls, 2);
+
+    $this->assertEquals($overalls["1:0cfae3833"]["responses"], array("T"=>array(9, 1, 1), "F"=>array(0=>1, 2=>1)));
+    $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("Right"=>array(7, 1, 1), "Wrong"=>array(0=>2, 2=>1), "Incorrect"=>array(1), "Not right"=>array(0)));
+    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("Right"=>array(9, 1, 1), "Correct"=>array(6, 1, 2), "Wrong"=>array(3), "Incorrect"=>array(6)));
+    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>array(5, 1, 1), "two"=>array(3), "4"=>array(0=>1, 2=>1), "tow"=>array(1)));
+
+    print_r($overalls);
   }
 
   // Test that we can create a good result from scratch
@@ -154,6 +169,8 @@ class ParseResults extends PHPUnit_Framework_TestCase
 
     $overalls = $this->create_overalls($gift, $this->perfect_submit, $overalls);
 
+    // print_r($overalls);
+
     // Check that the $overalls were created correctly
     $this->assertEquals($overalls['1:0cfae3833']["correct_answer"], array("T"));
     $this->assertEquals($overalls['2:11510fc8c']["correct_answer"], array("Right"));
@@ -161,16 +178,10 @@ class ParseResults extends PHPUnit_Framework_TestCase
     $this->assertEquals($overalls['4:3243f1f11']["correct_answer"], array("two", "2"));
 
     // Check that the answers were added correctly
-    $this->assertEquals($overalls["1:0cfae3833"]["responses"], array("T"=>1));
-    $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("Right"=>1));
-    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("Right"=>1, "Correct"=>1));
-    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>1));
-
-    // Check that the attempts were added correctly
-    // $this->assertEquals($overalls["1:0cfae3833"]["attempts"], array(1=>[1,1]));
-    // $this->assertEquals($overalls["2:11510fc8c"]["attempts"], array(1=>[1,1]));
-    // $this->assertEquals($overalls["3:ae43574bc"]["attempts"], array(1=>[1,1]));
-    // $this->assertEquals($overalls["4:3243f1f11"]["attempts"], array(1=>[1,1]));
+    $this->assertEquals($overalls["1:0cfae3833"]["responses"], array("T"=>array(1)));
+    $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("Right"=>array(1)));
+    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("Right"=>array(1), "Correct"=>array(1)));
+    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>array(1)));
   }
 
   // Test that we properly add "no answer" for submissions that are missing responses to questions
@@ -185,10 +196,10 @@ class ParseResults extends PHPUnit_Framework_TestCase
     $overalls = $this->create_overalls($gift, $submit, $overalls);
 
     // Check that the answers were added correctly
-    $this->assertEquals($overalls["1:0cfae3833"]["responses"], array("no answer"=>1));
-    $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("no answer"=>1));
-    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("no answer"=>1));
-    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("no answer"=>1));
+    $this->assertEquals($overalls["1:0cfae3833"]["responses"], array("no answer"=>array(1)));
+    $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("no answer"=>array(1)));
+    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("no answer"=>array(1)));
+    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("no answer"=>array(1)));
 
     $submit = array( // the next user did not answer the multiple choice, but did answer the others, just got them wrong
       'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
@@ -200,10 +211,10 @@ class ParseResults extends PHPUnit_Framework_TestCase
     $overalls = $this->create_overalls($gift, $submit, $overalls);
 
     // Check that the answers were added correctly
-    $this->assertEquals($overalls["1:0cfae3833"]["responses"], array('no answer'=>1, 'F'=>1));
-    $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("no answer"=>2));
-    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("no answer"=>1, "Right"=>1));
-    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("no answer"=>1, "threeve"=>1));
+    $this->assertEquals($overalls["1:0cfae3833"]["responses"], array('no answer'=>array(1), 'F'=>array(1)));
+    $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("no answer"=>array(2)));
+    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("no answer"=>array(1), "Right"=>array(1)));
+    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("no answer"=>array(1), "threeve"=>array(1)));
   }
 
   // Test how we handle a result when a new question is added at a later time
@@ -215,7 +226,7 @@ class ParseResults extends PHPUnit_Framework_TestCase
     $overalls = $this->create_overalls($gift, $this->perfect_submit, $overalls);
 
     $this->assertEquals($overalls['4:3243f1f11']["correct_answer"], array("two", "2"));
-    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>1));
+    $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>array(1)));
   }
 
   // Test how we handle when a question is removed for which results are present
@@ -230,6 +241,6 @@ class ParseResults extends PHPUnit_Framework_TestCase
 
     $this->assertArrayNotHasKey("4:3243f1f11", $overalls);
     $this->assertEquals($overalls['4:661a455e8']["correct_answer"], array("new"));
-    $this->assertEquals($overalls['4:661a455e8']["responses"], array("new"=>1));
+    $this->assertEquals($overalls['4:661a455e8']["responses"], array("new"=>array(1)));
   }
 }

@@ -2,7 +2,7 @@
 // $saved_results: The quiz results that are stored in the JSON at the moment. ("false" if none are present)
 // $submit_results: The results from the user's submitted quiz. Returned from make_quiz()
 // $parsed_questions: the parsed gift quiz. Returned from parse_gift()
-function parse_results($saved_results, $submit_results, $parsed_questions) {
+function parse_results($saved_results, $submit_results, $parsed_questions, $attempt_number) {
   // Match the submitted data to the questions
   // T/F & short answer are straightforward
   // MC/MA the answers have to be matched from the question
@@ -50,15 +50,15 @@ function parse_results($saved_results, $submit_results, $parsed_questions) {
           if (strlen($a_code) == 0) {
             // Short answers still get submitted even if they're blank, just as a q_code with a value of ''.
             // If this is the case, insert a no answer here, since it won't get caught by the $answered_questions array later.
-            update_results($saved_results, $q_code, "no answer");
+            update_results($saved_results, $q_code, "no answer", $attempt_number);
           } else {
-            update_results($saved_results, $q_code, $a_code);
+            update_results($saved_results, $q_code, $a_code, $attempt_number);
           }
       } elseif ($current_question->type == "multiple_choice_question") {
         // Find the response text for this question in the parsed questions
         foreach ($current_question->parsed_answer as $parsed_answer) {
           if ($parsed_answer[3] == $a_code) { // parsed_answer[3] is the answer code
-            update_results($saved_results, $q_code, $parsed_answer[1]);
+            update_results($saved_results, $q_code, $parsed_answer[1], $attempt_number);
           }
         }
       } elseif ($current_question->type == "multiple_answers_question") {
@@ -68,7 +68,7 @@ function parse_results($saved_results, $submit_results, $parsed_questions) {
             // because of the way the submit handles MA responses, we need to affirm that this question was answered here
             // $q_code will be something like 3:1:92b09c, which pertains to the selected answer, wheras the question code is actually 3:ae43574bc
             $answered_questions[$current_question->code] = true;
-            update_results($saved_results, $current_question->code, $parsed_answer[1]);
+            update_results($saved_results, $current_question->code, $parsed_answer[1], $attempt_number);
           }
         }
       } else {
@@ -83,7 +83,7 @@ function parse_results($saved_results, $submit_results, $parsed_questions) {
   // Go through the answered questions array and mark any questions that weren't answered as "no answer"
   foreach ($answered_questions as $q_code => $answered) {
     if (!$answered) {
-      update_results($saved_results, $q_code, "no answer");
+      update_results($saved_results, $q_code, "no answer", $attempt_number);
     }
   }
 
@@ -138,14 +138,14 @@ function create_blank_entry($question_data) {
   );
 }
 
-function update_results(&$saved_results, $q_code, $submitted_answer) {
+function update_results(&$saved_results, $q_code, $submitted_answer, $attempt_number) {
   // roll through each of the saved results to see what question this matches
   foreach ($saved_results as $question_results_code => &$question_results) {
     if ($question_results_code == $q_code) { // we found a match
-      if (isset($question_results['responses'][$submitted_answer])) {
-        $question_results['responses'][$submitted_answer] += 1; // add one to the entry that matches this one
+      if (isset($question_results['responses'][$submitted_answer][$attempt_number])) {
+        $question_results['responses'][$submitted_answer][$attempt_number] += 1; // add one to the entry that matches this one
       } else {
-        $question_results['responses'][$submitted_answer] = 1; // or if there isn't an entry , create one with the value 1
+        $question_results['responses'][$submitted_answer][$attempt_number] = 1; // or if there isn't an entry , create one with the value 1
       }
     }
   }
