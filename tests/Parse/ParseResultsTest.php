@@ -4,6 +4,52 @@ require_once "parse.php";
 require_once "../../vendor/tsugi/lib/src/Util/Mersenne_Twister.php";
 require_once "parse_results.php";
 
+// Make sure the minor utility functions that help parse_results work as intended
+class ParseResultsUtil extends PHPUnit_Framework_TestCase
+{
+  private function create_submit_results($gift, $submit) {
+    $questions = false;
+    $errors = [];
+    parse_gift($gift, $questions, $errors);
+    $_SESSION['gift_submit'] = $submit;
+    return make_quiz($_SESSION['gift_submit'], $questions, $errors);
+  }
+
+  // get_score_by_question should return a 1 if the question was answered correctly, and a 0 if not
+  public function test_GetScoreByQuestion() {
+    $gift = file_get_contents('.\tests\Parse\good_gift.gift');
+    $submit = array( // a submit for a perfect score
+      'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
+      '1:0cfae3833'=>'T',
+      '2:11510fc8c'=>'2:1:92b09c',
+      '3:1:92b09c'=>'true',
+      '3:2:d0a389'=>'true',
+      '4:3243f1f11'=>'2'
+    );
+    $submit_results = $this->create_submit_results($gift, $submit);
+
+    $this->assertEquals(get_score_by_question('1:0cfae3833', $submit_results), 1);
+    $this->assertEquals(get_score_by_question('2:11510fc8c', $submit_results), 1);
+    $this->assertEquals(get_score_by_question('3:ae43574bc', $submit_results), 1);
+    $this->assertEquals(get_score_by_question('4:3243f1f11', $submit_results), 1);
+
+    $submit = array( // a submit for all wrong answers
+      'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
+      '1:0cfae3833'=>'F',
+      '2:11510fc8c'=>'2:2:b35e5a',
+      '3:2:d0a389'=>'true',
+      '4:3243f1f11'=>'4'
+    );
+    $submit_results = $this->create_submit_results($gift, $submit);
+
+    $this->assertEquals(get_score_by_question('1:0cfae3833', $submit_results), 0);
+    $this->assertEquals(get_score_by_question('2:11510fc8c', $submit_results), 0);
+    $this->assertEquals(get_score_by_question('3:ae43574bc', $submit_results), 0);
+    $this->assertEquals(get_score_by_question('4:3243f1f11', $submit_results), 0);
+  }
+}
+
+// check that the parse_results function operates as it's expected to
 class ParseResults extends PHPUnit_Framework_TestCase
 {
   protected $sample_overalls;

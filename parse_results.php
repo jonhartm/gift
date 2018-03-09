@@ -90,6 +90,16 @@ function parse_results($saved_results, $submit_results, $parsed_questions) {
   return $saved_results;
 }
 
+// Gets the score for a particular question from a submit
+function get_score_by_question($question_code, $submit_results) {
+  foreach ($submit_results['questions'] as $question) {
+    if ($question->code == $question_code) {
+      return $question->score;
+    }
+  }
+  return false;
+}
+
 function create_blank_results($parsed_questions) {
   $new_results = array();
   foreach ($parsed_questions as $question) {
