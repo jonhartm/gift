@@ -7,6 +7,8 @@ require_once "parse_results.php";
 class ParseResults extends PHPUnit_Framework_TestCase
 {
   protected $sample_overalls;
+  protected $perfect_submit;
+
 
   protected function setUp() {
       $this->sample_overalls = array(
@@ -67,6 +69,15 @@ class ParseResults extends PHPUnit_Framework_TestCase
           )
         )
       );
+
+      $this->perfect_submit = array( // a submit for a perfect score
+        'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
+        '1:0cfae3833'=>'T',
+        '2:11510fc8c'=>'2:1:92b09c',
+        '3:1:92b09c'=>'true',
+        '3:2:d0a389'=>'true',
+        '4:3243f1f11'=>'2'
+      );
     }
 
   private function create_overalls($gift, $submit, $overalls)
@@ -82,15 +93,15 @@ class ParseResults extends PHPUnit_Framework_TestCase
   // Test that we can successfully add to an existing result
   public function test_notEmpty() {
     $gift = file_get_contents('.\tests\Parse\good_gift.gift');
-    $submit = array( // a submit for a perfect score
-      'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
-      '1:0cfae3833'=>'T',
-      '2:11510fc8c'=>'2:1:92b09c',
-      '3:1:92b09c'=>'true',
-      '3:2:d0a389'=>'true',
-      '4:3243f1f11'=>'2'
-    );
-    $overalls = $this->create_overalls($gift, $submit, $this->sample_overalls);
+    // $submit = array( // a submit for a perfect score
+    //   'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
+    //   '1:0cfae3833'=>'T',
+    //   '2:11510fc8c'=>'2:1:92b09c',
+    //   '3:1:92b09c'=>'true',
+    //   '3:2:d0a389'=>'true',
+    //   '4:3243f1f11'=>'2'
+    // );
+    $overalls = $this->create_overalls($gift, $this->perfect_submit, $this->sample_overalls);
 
     $this->assertEquals($overalls["1:0cfae3833"]["responses"], array("T"=>9, "F"=>1));
     $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("Right"=>7, "Wrong"=>2, "Incorrect"=>1, "Not right"=>0));
@@ -101,17 +112,17 @@ class ParseResults extends PHPUnit_Framework_TestCase
   // Test that we can create a good result from scratch
   public function test_Empty() {
     $gift = file_get_contents('.\tests\Parse\good_gift.gift');
-    $submit = array( // a submit for a perfect score
-      'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
-      '1:0cfae3833'=>'T',
-      '2:11510fc8c'=>'2:1:92b09c',
-      '3:1:92b09c'=>'true',
-      '3:2:d0a389'=>'true',
-      '4:3243f1f11'=>'2'
-    );
+    // $submit = array( // a submit for a perfect score
+    //   'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
+    //   '1:0cfae3833'=>'T',
+    //   '2:11510fc8c'=>'2:1:92b09c',
+    //   '3:1:92b09c'=>'true',
+    //   '3:2:d0a389'=>'true',
+    //   '4:3243f1f11'=>'2'
+    // );
     $overalls = false;
 
-    $overalls = $this->create_overalls($gift, $submit, $overalls);
+    $overalls = $this->create_overalls($gift, $this->perfect_submit, $overalls);
 
     // Check that the $overalls were created correctly
     $this->assertEquals($overalls['1:0cfae3833']["correct_answer"], array("T"));
@@ -169,17 +180,17 @@ class ParseResults extends PHPUnit_Framework_TestCase
   // (We should make a blank results entry for the new question)
   public function test_NewQuestionAddedNotInResults() {
     $gift = file_get_contents('.\tests\Parse\good_gift.gift');
-    $submit = array( // a submit for a perfect score
-      'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
-      '1:0cfae3833'=>'T',
-      '2:11510fc8c'=>'2:1:92b09c',
-      '3:1:92b09c'=>'true',
-      '3:2:d0a389'=>'true',
-      '4:3243f1f11'=>'2'
-    );
+    // $submit = array( // a submit for a perfect score
+    //   'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
+    //   '1:0cfae3833'=>'T',
+    //   '2:11510fc8c'=>'2:1:92b09c',
+    //   '3:1:92b09c'=>'true',
+    //   '3:2:d0a389'=>'true',
+    //   '4:3243f1f11'=>'2'
+    // );
     $overalls = $this->sample_overalls;
     unset($overalls['4:3243f1f11']); // remove the results for this question from the overalls
-    $overalls = $this->create_overalls($gift, $submit, $overalls);
+    $overalls = $this->create_overalls($gift, $this->perfect_submit, $overalls);
 
     $this->assertEquals($overalls['4:3243f1f11']["correct_answer"], array("two", "2"));
     $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>1));
@@ -189,14 +200,18 @@ class ParseResults extends PHPUnit_Framework_TestCase
   // (The results should be removed as well)
   public function test_QuestionRemoved() {
     $gift = file_get_contents('.\tests\Parse\altered_gift.gift');
-    $submit = array( // a submit for a perfect score
-      'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
-      '1:0cfae3833'=>'T',
-      '2:11510fc8c'=>'2:1:92b09c',
-      '3:1:92b09c'=>'true',
-      '3:2:d0a389'=>'true',
-      '4:661a455e8'=>'new'
-    );
+    // $submit = array( // a submit for a perfect score
+    //   'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
+    //   '1:0cfae3833'=>'T',
+    //   '2:11510fc8c'=>'2:1:92b09c',
+    //   '3:1:92b09c'=>'true',
+    //   '3:2:d0a389'=>'true',
+    //   '4:661a455e8'=>'new'
+    // );
+    $submit = $this->perfect_submit;
+    unset($submit['4:3243f1f11']);
+    $submit['4:661a455e8']='new';
+
     $overalls = $this->create_overalls($gift, $submit, $this->sample_overalls);
 
     $this->assertArrayNotHasKey("4:3243f1f11", $overalls);
