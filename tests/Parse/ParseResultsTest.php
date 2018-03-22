@@ -47,6 +47,35 @@ class ParseResultsUtil extends PHPUnit_Framework_TestCase
     $this->assertEquals(get_score_by_question('3:ae43574bc', $submit_results), 0);
     $this->assertEquals(get_score_by_question('4:3243f1f11', $submit_results), 0);
   }
+
+  // results should be sorted by the number of respondants who picked each one
+  public function test_SortResults() {
+    $sample_overalls = array(
+      "1:0cfae3833"=> array(
+        "correct_answer"=>array("T"),
+        "responses" => array(
+          "T"=>array(1,4),
+          "F"=>array(9,1)
+        )
+      ),
+      "2:11510fc8c"=> array(
+        "correct_answer"=>array("Right"),
+        "responses" => array(
+          "Right"=>array(3,1),
+          "Wrong"=>array(5,4),
+          "Incorrect"=>array(5),
+          "Not right"=>array(0,0,0,1)
+        )
+      )
+    );
+    sort_all_results($sample_overalls);
+
+    $loc_F = array_search("F", array_keys($sample_overalls['1:0cfae3833']['responses']));
+    $this->assertEquals($loc_F, 0);
+
+    $loc_T = array_search("T", array_keys($sample_overalls['1:0cfae3833']['responses']));
+    $this->assertEquals($loc_T, 1);
+  }
 }
 
 // check that the parse_results function operates as it's expected to
@@ -54,7 +83,6 @@ class ParseResults extends PHPUnit_Framework_TestCase
 {
   protected $sample_overalls;
   protected $perfect_submit;
-
 
   protected function setUp() {
       $this->sample_overalls = array(
@@ -108,8 +136,7 @@ class ParseResults extends PHPUnit_Framework_TestCase
       );
     }
 
-  private function create_overalls($gift, $submit, $overalls, $attempt=0)
-  {
+  private function create_overalls($gift, $submit, $overalls, $attempt=0) {
     $questions = false;
     $errors = [];
     parse_gift($gift, $questions, $errors);
@@ -156,10 +183,8 @@ class ParseResults extends PHPUnit_Framework_TestCase
 
     $this->assertEquals($overalls["1:0cfae3833"]["responses"], array("T"=>array(9, 1, 1), "F"=>array(0=>1, 2=>1)));
     $this->assertEquals($overalls["2:11510fc8c"]["responses"], array("Right"=>array(7, 1, 1), "Wrong"=>array(0=>2, 2=>1), "Incorrect"=>array(1), "Not right"=>array(0)));
-    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("Right"=>array(9, 1, 1), "Correct"=>array(6, 1, 2), "Wrong"=>array(3), "Incorrect"=>array(6)));
+    $this->assertEquals($overalls["3:ae43574bc"]["responses"], array("Right"=>array(9, 1, 1), "Correct"=>array(6, 1, 2), "Incorrect"=>array(6), "Wrong"=>array(3)));
     $this->assertEquals($overalls["4:3243f1f11"]["responses"], array("2"=>array(5, 1, 1), "two"=>array(3), "4"=>array(0=>1, 2=>1), "tow"=>array(1)));
-
-    print_r($overalls);
   }
 
   // Test that we can create a good result from scratch
@@ -168,8 +193,6 @@ class ParseResults extends PHPUnit_Framework_TestCase
     $overalls = false;
 
     $overalls = $this->create_overalls($gift, $this->perfect_submit, $overalls);
-
-    // print_r($overalls);
 
     // Check that the $overalls were created correctly
     $this->assertEquals($overalls['1:0cfae3833']["correct_answer"], array("T"));

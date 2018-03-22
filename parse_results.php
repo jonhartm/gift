@@ -87,7 +87,20 @@ function parse_results($saved_results, $submit_results, $parsed_questions, $atte
     }
   }
 
+  // sort the results as we return them
+  sort_all_results($saved_results);
   return $saved_results;
+}
+
+function sort_all_results(&$saved_results){
+  //sort the results
+  foreach ($saved_results as $q_code => $response) {
+    // we need to sort the responses based on the sum of the number of responses
+    uasort($saved_results[$q_code]['responses'], function ($a, $b) {
+      if (array_sum($a)==array_sum($b)) return 0;
+      return (array_sum($a) < array_sum($b))?1:-1;
+    });
+  }
 }
 
 // Gets the score for a particular question from a submit
