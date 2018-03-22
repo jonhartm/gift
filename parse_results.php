@@ -47,12 +47,10 @@ function parse_results($saved_results, $submit_results, $parsed_questions, $atte
 
       if ($current_question->type == "true_false_question" || // T/F and SA submits are straightforward
         $current_question->type == "short_answer_question") {
-          if (strlen($a_code) == 0) {
+          if (strlen($a_code) > 0) {
             // Short answers still get submitted even if they're blank, just as a q_code with a value of ''.
-            // If this is the case, insert a no answer here, since it won't get caught by the $answered_questions array later.
-            update_results($saved_results, $q_code, "no answer", $attempt_number);
-          } else {
             update_results($saved_results, $q_code, $a_code, $attempt_number);
+            $answered_questions[$q_code] = true; // Mark this quesiton as answered
           }
       } elseif ($current_question->type == "multiple_choice_question") {
         // Find the response text for this question in the parsed questions
@@ -60,6 +58,7 @@ function parse_results($saved_results, $submit_results, $parsed_questions, $atte
           if ($parsed_answer[3] == $a_code) { // parsed_answer[3] is the answer code
             update_results($saved_results, $q_code, $parsed_answer[1], $attempt_number);
           }
+          $answered_questions[$q_code] = true; // Mark this quesiton as answered
         }
       } elseif ($current_question->type == "multiple_answers_question") {
         // the q_code for MA questions is actually the code for the matching answer in $parsed_questions
@@ -71,12 +70,30 @@ function parse_results($saved_results, $submit_results, $parsed_questions, $atte
             update_results($saved_results, $current_question->code, $parsed_answer[1], $attempt_number);
           }
         }
+        $answered_questions[$q_code] = true; // Mark this quesiton as answered
       } else {
         // There are only four question types at the moment
         throw new Exception("Unknown question type");
       }
-      // Mark this quesiton as answered
-      $answered_questions[$q_code] = true;
+    }
+  }
+  // Update the totals based on the scores in the submit results
+  // print("\n");
+  foreach ($submit_results['questions'] as $result) {
+    // If this is the first person to have this many submits, append a new array to the totals
+    if (count($saved_results[$result->code]['totals']) == $attempt_number) {
+      array_push($saved_results[$result->code]['totals'], array(0,0,0));
+    }
+    // print("{$result->code}: ");
+    if ($result->correct) {
+      // print(" Correct\n");
+      $saved_results[$result->code]['totals'][$attempt_number][0] += 1;
+    } else {
+      if (!$answered_questions[$result->code]){
+        $saved_results[$result->code]['totals'][$attempt_number][2] += 1;
+      } else {
+        $saved_results[$result->code]['totals'][$attempt_number][1] += 1;
+      }
     }
   }
 
@@ -84,8 +101,12 @@ function parse_results($saved_results, $submit_results, $parsed_questions, $atte
   foreach ($answered_questions as $q_code => $answered) {
     if (!$answered) {
       update_results($saved_results, $q_code, "no answer", $attempt_number);
+      // print("\n{$q_code}\n");
+      // $saved_results[$q_code]['totals'][$attempt_number][2]+=1; // track skipped questions
     }
   }
+
+  // print_r($saved_results);
 
   // sort the results as we return them
   sort_all_results($saved_results);
@@ -148,7 +169,10 @@ function create_blank_entry($question_data) {
       'name' => $question_data->name,
       'text' => $question_data->question,
       'correct_answer' => $correct_answer,
-      'responses' => array()
+      'responses' => array(),
+      'totals' => array(
+        array(0,0,0) // Correct/Incorrect/No Answer for the first response
+      )
   );
 }
 
