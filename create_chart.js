@@ -80,3 +80,78 @@ function create_chart(canvasID, results) {
     }
   });
 }
+
+function create_overall_chart(canvasID, results) {
+  var data_labels = [];
+  var correct_data = [];
+  var incorrect_data = [];
+  var no_answer_data = [];
+
+  var question_index = 0;
+  for (questionID in results) {
+    correct_data.push(0);
+    incorrect_data.push(0);
+    no_answer_data.push(0);
+
+    correct_data[question_index] += results[questionID]['totals'][0][0];
+    incorrect_data[question_index] += results[questionID]['totals'][0][1];
+    no_answer_data[question_index] += results[questionID]['totals'][0][2];
+
+    var average_score = 100 * (
+    correct_data[question_index]/
+      (correct_data[question_index]+
+      incorrect_data[question_index]+
+      no_answer_data[question_index]));
+
+    data_labels.push("Q" + (question_index+1) + " ("+ average_score + "%)");
+    question_index++;
+  }
+  var ctx = document.getElementById(canvasID).getContext("2d");
+
+  var data = {
+    labels: data_labels,
+    datasets: [
+        {
+            label: "Correct",
+            backgroundColor: "rgba(0, 255, 0, 0.2)",
+            borderColor: "rgba(0, 255, 0, 0.5)",
+            borderWidth: 5,
+            data: correct_data
+        },
+        {
+            label: "Incorrect",
+            backgroundColor: "rgba(255, 0, 0, 0.2)",
+            borderColor: "rgba(255, 0, 0, 0.5)",
+            borderWidth: 5,
+            data: incorrect_data
+        },
+        {
+            label: "No Answer",
+            backgroundColor: "rgba(200, 200, 200, 0.2)",
+            borderColor: "rgba(200, 200, 200, 0.5)",
+            borderWidth: 5,
+            data: no_answer_data
+        }
+    ]
+};
+
+var myBarChart = new Chart(ctx, {
+    type: 'horizontalBar',
+    data: data,
+    options: {
+        title: {
+            display: true,
+            text: 'Overall Results By Question For the First Submission'
+        },
+        barValueSpacing: 20,
+        scales: {
+            xAxes: [{
+                ticks: {
+                    min: 0,
+                    stepSize: 1,
+                }
+            }]
+        }
+    }
+  });
+}

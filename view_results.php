@@ -35,6 +35,9 @@ function drawCharts() {
     if (!resultData){
       $("#chartWrapper").html("No results have been recorded..."); // In the event there are no results and we try to check
     } else {
+      // Create an overall chart based on the first answers
+      $("#chartWrapper").append("<canvas class='chart' id=overall_results></canvas>");
+      create_overall_chart("overall_results", resultData);
       // Compile the handlebars template
       var source = document.getElementById("accordion-template").innerHTML;
       var template = Handlebars.compile(source);
