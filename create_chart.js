@@ -103,7 +103,7 @@ function create_overall_chart(canvasID, results) {
       incorrect_data[question_index]+
       no_answer_data[question_index]));
 
-    data_labels.push("Q" + (question_index+1) + " ("+ average_score + "%)");
+    data_labels.push("Q" + (question_index+1) + " ("+ Math.round(average_score, 1) + "%)");
     question_index++;
   }
   var ctx = document.getElementById(canvasID).getContext("2d");
