@@ -166,8 +166,6 @@ function create_blank_entry($question_data) {
   }
 
   return array(
-      'name' => $question_data->name,
-      'text' => $question_data->question,
       'correct_answer' => $correct_answer,
       'responses' => array(),
       'totals' => array(
