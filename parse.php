@@ -306,6 +306,11 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
             if ( isset($submit[$q_code]) ) {
                 $nq->value_true = $submit[$q_code] == 'T';
                 $nq->value_false = $submit[$q_code] == 'F';
+                if ($nq->value_true) {
+                    $nq->feedback = $question->parsed_answer[1][2];
+                } else {
+                    $nq->feedback = $question->parsed_answer[0][2];
+                }
             }
         }
 
@@ -321,6 +326,7 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
                     if ( strcasecmp($sub, $ans) == 0 ) {
                         $score = 1;
                         $correct = true;
+                        $nq->feedback = $answer[2];
                         break;
                     }
                 }

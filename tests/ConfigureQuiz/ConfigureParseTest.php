@@ -2,6 +2,7 @@
 
 require_once "configure_parse.php";
 require_once "parse.php";
+require_once "..\..\\vendor\\tsugi\lib\src\Util\Mersenne_Twister.php";
 
 class ConfigureTest extends PHPUnit_Framework_TestCase
 {
@@ -121,5 +122,29 @@ class ConfigureTest extends PHPUnit_Framework_TestCase
     // but the rest of the question should still parse
     $this->assertEquals($questions[0]->question, "1+1=2");
     $this->assertEquals($questions[0]->type, "true_false_question");
+  }
+
+  public function testMakeQuizwithFeedback() {
+    // Check a valid string
+    $gift = "::Q1 T/F:: 1+1=2 {T#You got it wrong.#You got it.}\n
+    ::Q2 MA:: One of these are right and three are wrong {=Right#Correct ~Wrong#nope ~Incorrect#opposite ~Not right#single word}\n
+    ::Q3 MA:: Two of these are right and two are wrong {=Right#correct =Correct#corretc ~Wrong#not this one ~Incorrect#nope}\n
+    ::Q4 Short Answer:: Two plus [_____] equals four. {=two#yes, written =2#the numeral}";
+  //  $gift = "::Q4 Short Answer:: Two plus [_____] equals four. {=two#yes, written =2#the numeral}";
+
+    $_SESSION['gift_submit'] = array( // a submit for a perfect score
+      'PHPSESSID'=>'baa5640b2e05c0af6dfc92f76e423cb7',
+      '1:0cfae3833'=>'T',
+      '2:11510fc8c'=>'2:1:92b09c',
+      '3:1:92b09c'=>'true',
+      '3:2:d0a389'=>'true',
+      '4:3243f1f11'=>'2'
+    );
+
+    $questions = array();
+    $errors = array();
+    parse_gift($gift, $questions, $errors);
+    $quiz = make_quiz($_SESSION['gift_submit'], $questions, $errors);
+    print_r($quiz);
   }
 }
