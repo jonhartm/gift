@@ -128,7 +128,28 @@ function parse_gift($text, &$questions, &$errors) {
         $correct_answers = 0;
         $incorrect_answers = 0;
         // Also will be multiple_answer_question and short_answer_question
-        if ( $type == 'multiple_choice_question') {
+        if ( $type == 'true_false_question') {
+            if (strpos($answer, "#") > 0) {
+                $feedback = explode('#', $answer);
+                if (sizeof($feedback) === 3) {
+                    // the first feedback is always if they got it wrong, the second if they got it right
+                    $parsed_answer = array(
+                        array(
+                          0 => false,
+                          2 => $feedback[1]
+                        ),
+                        array(
+                          0 => 1,
+                          2 => $feedback[2]
+                        )
+                    );
+                } else {
+                    $errors[] = "malformed True/False feedback: ".$raw;
+                }
+            } else {
+              // No feedback is provided
+            }
+        } else if ( $type == 'multiple_choice_question') {
             $parsed_answer = array();
             $correct = null;
             $answer_text = false;
@@ -339,6 +360,7 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
                 $expected = $answer[0];  // An actual boolean
                 $ans->text = $answer[1];
                 $a_code = $answer[3];
+                $ans->feedback = $answer[2]; // add any feedback if it's included in the question
                 $ans->code = $a_code;
                 if ( $value == $a_code ) {
                     $ans->checked = true;
@@ -367,6 +389,7 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
                 $ans->text = $answer[1];
                 $a_code = $answer[3];
                 $expected = $answer[0];  // An actual boolean
+                $ans->feedback = $answer[2]; // add any feedback if it's included in the question
                 $oneanswer = $oneanswer || isset($submit[$a_code]);
                 $ans->checked = isset($submit[$a_code]);
 
