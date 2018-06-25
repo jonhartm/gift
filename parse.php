@@ -373,6 +373,7 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
                     if ( $doscore && $expected ) {
                         $correct = true;
                         $score = 1;
+                        $ans->correct = true;
                     }
                 }
                 $answers[] = $ans;
@@ -403,19 +404,21 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
                 if (isset($submit[$a_code])) {  // If the user checked the box for this answer...
                   if ($expected){               // And the answer was supposed to be checked
                     $actual = true;             // Then the user should get a point towards the score
+                    $ans->correct = true;
                   }
                 } else {                        // If the user did NOT check this box...
                   if (!$expected){              // And the answer was not supposed to be checked
                     $actual = true;             // Then the user should get a point
+                    $ans->correct = false;
                   }
                 }
 
                 if ( $actual ) $got++;          // $actual is true if the user gave the correct option
                 $need++;
                 $ans->code = $a_code;
-                if ( $doscore ) {
-                    $ans->correct = $actual == $expected;
-                }
+                // if ( $doscore ) {            // removed - doesn't appear to be needed anymore?
+                //     $ans->correct = $actual == $expected;
+                // }
                 $answers[] = $ans;
             }
             if ( $doscore ) {
