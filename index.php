@@ -143,6 +143,7 @@ $OUTPUT->topNav();
 // echo('<span style="position: fixed; right: 10px; top: 5px;">');
 echo('<span style="float: right; margin-bottom: 10px;">');
 if ( $USER->instructor ) {
+    echo('<a href="view_responses.php" class="btn btn-default">View Student Responses</a> ');
     echo('<a href="configure.php" class="btn btn-default">Edit Quiz Content</a> ');
     if ( $CFG->launchactivity ) {
         echo('<a href="analytics" class="btn btn-default">Launches</a> ');
