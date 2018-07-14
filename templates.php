@@ -56,3 +56,11 @@
     </div>
   </li>
 </script>
+<script id="essay_question" type="text/x-handlebars-template">
+  <li>
+    <p>{{{question}}}</p>
+    <p>
+      <textarea rows="4" cols="80" name="{{code}}">{{value}}</textarea>
+    </p>
+  </li>
+</script>
