@@ -43,8 +43,6 @@ $errors = array();
 parse_gift($gift, $questions, $errors);
 
 $_SESSION['gift_submit'] = (array)$json->submit;
-// QUESTION: Huh? why does this work without calling make_quiz?
-//$quiz = make_quiz($_SESSION['gift_submit'], $questions, $errors);
 
 ?>
 <p>Submitted Quiz</p>
