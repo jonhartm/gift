@@ -5,6 +5,20 @@ $(document).on('click','.btn',function(){
     // get the question code from the id of this li
     var question_code = question.attr("id");
 
+    // get the marker icon to the left of the question
+    var score_marker = question.find($(".score_marker"));
+
+    // Was this button already clicked?
+    if ($(this).hasClass("active")) {
+        // remove the active class so neither button is shaded
+        $(this).removeClass("active");
+        // reset the score marker to the "i" icon
+        score_marker.attr("class", "fa fa-info-circle text-info score_marker");
+        // make sure we remove any hidden fields that might be there
+        question.find($("input[type='hidden'][name$='-score']")).remove();
+        return;
+    }
+
     // is this the "mark correct" or "mark Incorrect" button?
     var mark_correct = ($(this).val() == "Mark Correct");
 
@@ -19,8 +33,6 @@ $(document).on('click','.btn',function(){
     // add the active class back to the button that was clicked
     $(this).addClass("active");
 
-    // get the marker icon to the left of the question
-    var score_marker = question.find($(".score_marker"));
 
     // remove all classes from this marker except the one identifying this as a score marker
     score_marker.attr("class", "score_marker");

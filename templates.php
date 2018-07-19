@@ -74,8 +74,8 @@
       {{{question}}}
 
       {{#if review}}
-        <input type="button" class="btn btn-default" id="{{code}}-markcorrect" value="Mark Correct">
-        <input type="button" class="btn btn-default" id="{{code}}-markincorrect" value="Mark Incorrect">
+        <input type="button" class="btn btn-default {{#if scored}}{{#if correct}}active{{/if}}{{/if}}" id="{{code}}-markcorrect" value="Mark Correct">
+        <input type="button" class="btn btn-default {{#if scored}}{{#unless correct}}active{{/unless}}{{/if}}" id="{{code}}-markincorrect" value="Mark Incorrect">
       {{/if}}
 
     </p>
