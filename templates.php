@@ -58,9 +58,27 @@
 </script>
 <script id="essay_question" type="text/x-handlebars-template">
   <li>
-    <p>{{{question}}}</p>
     <p>
-      <textarea rows="4" cols="80" name="{{code}}">{{value}}</textarea>
+      {{#unless value.scored}}
+          <i class="fa fa-info-circle text-info" id="{{code}}-scoremarker"></i>
+      {{/unless}}
+
+      {{#if value.scored}}{{#if correct}}
+          <i class="fa fa-check text-success" id="{{code}}-scoremarker"></i>
+      {{else}}
+          <i class="fa fa-times text-danger" id="{{code}}-scoremarker>"</i>
+      {{/if}} {{/if}}
+
+      {{{question}}}
+
+      {{#if review}}
+        <input type="button" class="btn btn-default" id="{{code}}-markcorrect" value="Mark Correct">
+        <input type="button" class="btn btn-default" id="{{code}}-markincorrect" value="Mark Incorrect">
+      {{/if}}
+
+    </p>
+    <p>
+      <textarea rows="4" cols="80" name="{{code}}">{{value.submitted}}</textarea>
     </p>
   </li>
 </script>

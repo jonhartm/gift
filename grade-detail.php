@@ -57,6 +57,7 @@ $(document).ready(function(){
         for(var i=0; i<quiz.questions.length; i++) {
             question = quiz.questions[i];
             type = question.type;
+            question.review = true;
             console.log(type);
             if ( TEMPLATES[type] ) {
                 template = TEMPLATES[type];
