@@ -49,6 +49,7 @@ $OUTPUT->footerStart();
 require_once('templates.php');
 
 ?>
+<script type="text/javascript" src="js/grade_detail.js"></script>
 <script>
 TEMPLATES = [];
 $(document).ready(function(){
