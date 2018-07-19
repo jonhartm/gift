@@ -65,8 +65,10 @@
 
       {{#if value.scored}}{{#if correct}}
           <i class="fa fa-check text-success score_marker"></i>
+          <input type='hidden' name="{{code}}-score" value="{{value.scored}}">
       {{else}}
           <i class="fa fa-times text-danger score_marker"></i>
+          <input type='hidden' name="{{code}}-score" value="{{value.scored}}">
       {{/if}} {{/if}}
 
       {{{question}}}
