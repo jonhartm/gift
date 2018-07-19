@@ -408,7 +408,7 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
 
                 // Check if there's a manual score that's been submitted for this question
                 if (isset($submit[$q_code.'-score'])) {
-                    $nq->value["scored"] = $submit[$q_code.'-score'];
+                    $nq->value["score"] = $submit[$q_code.'-score'];
                     // if the manual score is 1, then this question is correct
                     // NOTE: maybe partial credit at some point in the future?
                     $correct = ($submit[$q_code.'-score'] === "1");

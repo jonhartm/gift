@@ -59,16 +59,16 @@
 <script id="essay_question" type="text/x-handlebars-template">
   <li id="{{code}}">
     <p>
-      {{#unless value.scored}}
+      {{#unless scored}}
           <i class="fa fa-info-circle text-info score_marker"></i>
       {{/unless}}
 
-      {{#if value.scored}}{{#if correct}}
+      {{#if scored}}{{#if correct}}
           <i class="fa fa-check text-success score_marker"></i>
-          <input type='hidden' name="{{code}}-score" value="{{value.scored}}">
+          <input type='hidden' name="{{code}}-score" value="{{value.score}}">
       {{else}}
           <i class="fa fa-times text-danger score_marker"></i>
-          <input type='hidden' name="{{code}}-score" value="{{value.scored}}">
+          <input type='hidden' name="{{code}}-score" value="{{value.score}}">
       {{/if}} {{/if}}
 
       {{{question}}}

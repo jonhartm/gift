@@ -77,12 +77,6 @@ $(document).ready(function(){
             question = quiz.questions[i];
             type = question.type;
 
-            // if question.value is an object, it may have been manually graded.
-            // check to see if the score is a one in order to set question.correct.
-            if (typeof(question.value) == "object") {
-                question.correct = question.value.scored == "1";
-            }
-
             // we're in grade-detail, so go ahead and add buttons in the template.
             question.review = true;
 
