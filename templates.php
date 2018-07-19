@@ -1,5 +1,5 @@
 <script id="short_answer_question" type="text/x-handlebars-template">
-  <li>
+  <li id="{{code}}">
     <p>
     {{#if scored}}{{#if correct}}
         <i class="fa fa-check text-success"></i>
@@ -11,7 +11,7 @@
   </li>
 </script>
 <script id="multiple_answers_question" type="text/x-handlebars-template">
-  <li>
+  <li id="{{code}}">
     <p>
     {{#if scored}}{{#if correct}}
         <i class="fa fa-check text-success"></i>
@@ -27,7 +27,7 @@
   </li>
 </script>
 <script id="true_false_question" type="text/x-handlebars-template">
-  <li>
+  <li id="{{code}}">
     <p>
     {{#if scored}}{{#if correct}}
         <i class="fa fa-check text-success"></i>
@@ -41,7 +41,7 @@
   </li>
 </script>
 <script id="multiple_choice_question" type="text/x-handlebars-template">
-  <li>
+  <li id="{{code}}">
     <p>
     {{#if scored}}{{#if correct}}
         <i class="fa fa-check text-success"></i>
@@ -57,16 +57,16 @@
   </li>
 </script>
 <script id="essay_question" type="text/x-handlebars-template">
-  <li>
+  <li id="{{code}}">
     <p>
       {{#unless value.scored}}
-          <i class="fa fa-info-circle text-info" id="{{code}}-scoremarker"></i>
+          <i class="fa fa-info-circle text-info score_marker"></i>
       {{/unless}}
 
       {{#if value.scored}}{{#if correct}}
-          <i class="fa fa-check text-success" id="{{code}}-scoremarker"></i>
+          <i class="fa fa-check text-success score_marker"></i>
       {{else}}
-          <i class="fa fa-times text-danger" id="{{code}}-scoremarker>"</i>
+          <i class="fa fa-times text-danger score_marker"></i>
       {{/if}} {{/if}}
 
       {{{question}}}

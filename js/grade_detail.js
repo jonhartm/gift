@@ -1,15 +1,15 @@
 $(document).on('click','.btn',function(){
-    // get the button that was clicked on and split the id on the hyphen
-    var clicked = $(this);
+    // get the list item for this question (the first li that is a parent of this button)
+    var question = $(this).closest("li");
 
-    // the first part of the button id is the question code
-    var question_code = clicked.attr("id").split('-')[0];
+    // get the question code from the id of this li
+    var question_code = question.attr("id");
 
     // is this the "mark correct" or "mark Incorrect" button?
-    var mark_correct = (clicked.attr("id").split('-')[1] == "markcorrect");
+    var mark_correct = ($(this).val() == "Mark Correct");
 
     // get all of the buttons for this question
-    var marking_buttons = $("#quiz").find($(".btn[id^='"+question_code+"']"));
+    var marking_buttons = question.find($(".btn"));
 
     // just in case, make sure none of the buttons have the active class
     for (var i = 0; i < marking_buttons.length; i++) {
@@ -17,19 +17,31 @@ $(document).on('click','.btn',function(){
     }
 
     // add the active class back to the button that was clicked
-    clicked.addClass("active");
+    $(this).addClass("active");
 
     // get the marker icon to the left of the question
-    var score_marker = $("#quiz").find($(".fa[id='"+question_code+"-scoremarker']"));
+    var score_marker = question.find($(".score_marker"));
 
-    // remove all classes from this marker
-    score_marker.removeClass();
+    // remove all classes from this marker except the one identifying this as a score marker
+    score_marker.attr("class", "score_marker");
+
+    // set the score to a default value
+    var score = false;
 
     if (mark_correct) {
         // add fa classes to make it a green check
         score_marker.addClass("fa fa-check text-success");
+        score = 1;
     } else {
         // add fa classes to make it a red x
         score_marker.addClass("fa fa-times text-danger");
+        score = 0;
     }
+
+    // just in case, remove any hidden inputs for score this question has already
+    question.find($("input[type='hidden'][name$='-score']")).remove();
+
+    // add a hidden input with the score for this question so it gets sent with the submit
+    var hidden_input = "<input type='hidden' name="+question_code+"-score value="+score+">";
+    question.append(hidden_input);
 });
