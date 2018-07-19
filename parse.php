@@ -403,9 +403,31 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
         if ( $t == 'essay_question') {
             if ( isset($submit[$q_code]) ) {
                 $nq->value = array(
-                    "submitted" => $submit[$q_code],
-                    "scored" => (isset($submit[$q_code.'-score']) ? $submit[$q_code.'-score'] : False)
+                    "submitted" => $submit[$q_code]
                 );
+
+                // Check if there's a manual score that's been submitted for this question
+                if (isset($submit[$q_code.'-score'])) {
+                    $nq->value["scored"] = $submit[$q_code.'-score'];
+                    // if the manual score is 1, then this question is correct
+                    // NOTE: maybe partial credit at some point in the future?
+                    $correct = ($submit[$q_code.'-score'] === "1");
+
+                    // Set the score to 1 if the answer is correct, 0 if not
+                    if ($correct) {
+                      $score = 1;
+                    } else {
+                      $score = 0;
+                    }
+                } else {
+                    // If there was no manual score, set a flag in the return value indicating that at least one
+                    // question in this quiz needs to be manually reviewed.
+                    $retval['manual_grade_needed'] = true;
+
+                    // set scored to false - used in the template
+                    $nq->scored = false;
+                }
+
             }
         }
 
