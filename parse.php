@@ -400,6 +400,15 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
             $nq->answers = $mt->shuffle($answers);
         }
 
+        if ( $t == 'essay_question') {
+            if ( isset($submit[$q_code]) ) {
+                $nq->value = array(
+                    "submitted" => $submit[$q_code],
+                    "scored" => (isset($submit[$q_code.'-score']) ? $submit[$q_code.'-score'] : False)
+                );
+            }
+        }
+
         if ( $correct !== null ) $nq->correct = $correct;
         if ( $score !== null ) {
             $nq->score = $score;

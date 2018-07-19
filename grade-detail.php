@@ -3,12 +3,28 @@ require_once "../config.php";
 require_once "parse.php";
 
 use \Tsugi\Core\LTIX;
+use \Tsugi\Core\Result;
 use \Tsugi\Grades\GradeUtil;
 
 $LAUNCH = LTIX::requireData();
 
 // Get the user's grade data also checks session
 $row = GradeUtil::gradeLoad($_REQUEST['user_id']);
+
+if ( count($_POST) > 0 ) {
+    // Make a new student result so we can store the modified json data
+    $student_result = new \Tsugi\Core\Result();
+    $student_result->launch = $TSUGI_LAUNCH;
+    $student_result->id = $row['result_id'];
+
+    $result_data = array("when" => time(), "tries" => 1, "submit" => $_POST);
+
+    $student_result->setJson(json_encode($result_data));
+
+    header( 'Location: '.addSession('grade-detail.php?user_id='.$row['user_id']) ) ;
+    return;
+}
+
 
 // View
 $OUTPUT->header();
@@ -27,13 +43,17 @@ $errors = array();
 parse_gift($gift, $questions, $errors);
 
 $_SESSION['gift_submit'] = (array)$json->submit;
-// TODO: Huh? why does this work without calling make_quiz?
+// QUESTION: Huh? why does this work without calling make_quiz?
 //$quiz = make_quiz($_SESSION['gift_submit'], $questions, $errors);
 
 ?>
 <p>Submitted Quiz</p>
+<form method="post">
 <ol id="quiz">
 </ol>
+<input type="submit" value="Submit Modifications">
+</form>
+<br>
 <?php
 
 // Unique detail
@@ -58,7 +78,16 @@ $(document).ready(function(){
         for(var i=0; i<quiz.questions.length; i++) {
             question = quiz.questions[i];
             type = question.type;
+
+            // if question.value is an object, it may have been manually graded.
+            // check to see if the score is a one in order to set question.correct.
+            if (typeof(question.value) == "object") {
+                question.correct = question.value.scored == "1";
+            }
+
+            // we're in grade-detail, so go ahead and add buttons in the template.
             question.review = true;
+
             console.log(type);
             if ( TEMPLATES[type] ) {
                 template = TEMPLATES[type];
