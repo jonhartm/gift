@@ -114,6 +114,7 @@ if ( count($_POST) > 0 ) {
     }
 
     if (isset($quiz["manual_grade_needed"])) {
+      $RESULT->setNote("Manual Grade Needed");
       if ($quiz["manual_grade_needed"] === 1) {
         $scorestr .= " ".$quiz["manual_grade_needed"]." question ";
       } else {
