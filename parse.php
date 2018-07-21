@@ -420,9 +420,14 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
                       $score = 0;
                     }
                 } else {
-                    // If there was no manual score, set a flag in the return value indicating that at least one
-                    // question in this quiz needs to be manually reviewed.
-                    $retval['manual_grade_needed'] = true;
+                    // If there was no manual score...
+                    if (isset($retval['manual_grade_needed'])) {
+                      // and this is not the first question like this, add 1
+                      $retval['manual_grade_needed'] += 1;
+                    } else {
+                      // this is the first question, so set the value.
+                      $retval['manual_grade_needed'] = 1;
+                    }
 
                     // set scored to false - used in the template
                     $nq->scored = false;

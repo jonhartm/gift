@@ -6,14 +6,17 @@ class ConfigureTest extends PHPUnit_Framework_TestCase
   public function setUp() {
     $this->gift = "::Q1:: Who's buried in Grant's tomb?{=Ulysses S. Grant =Ulysses Grant}
 
-    ::Q2:: Write a short biography of Thor Heyerdahl. {}";
+    ::Q2:: Write a short biography of Thor Heyerdahl. {}
+
+    ::Q3:: What is Kon Tiki. {}";
 
     // create a test post
     $this->submit_notGraded = Array
     (
         'PHPSESSID' => 'ca80ad1e7a9c9d9d71f742d563a99145',
         '1:329f32e6a' => "Ulysses Grant",
-        '2:8d90b995a' => 'lorem ipsum'
+        '2:8d90b995a' => 'lorem ipsum',
+        '3:94cbc8097' => 'dolor sit amet'
     );
 
     $this->submit_GradedWrong = Array
@@ -21,7 +24,8 @@ class ConfigureTest extends PHPUnit_Framework_TestCase
         'PHPSESSID' => 'ca80ad1e7a9c9d9d71f742d563a99145',
         '1:329f32e6a' => "Ulysses Grant",
         '2:8d90b995a' => 'lorem ipsum',
-        '2:8d90b995a-score' => "0"
+        '2:8d90b995a-score' => "0",
+        '3:94cbc8097' => 'dolor sit amet'
     );
 
     $this->submit_GradedCorrect = Array
@@ -53,8 +57,12 @@ class ConfigureTest extends PHPUnit_Framework_TestCase
     $_SESSION['gift_submit'] = $this->submit_notGraded;
     $parsed = make_quiz($_SESSION['gift_submit'], $questions, $errors);
     $this->assertTrue(
+      isset($parsed["manual_grade_needed"]),
+      "manual_grade_needed should exist when an essay question is missing a corresponding {code}-score submit");
+    $this->assertEquals(
       $parsed["manual_grade_needed"],
-      "manual_grade_needed should be flagged when an essay question is missing a corresponding {code}-score submit");
+      2,
+      "manual_grade_needed should equal the number of questions awaiting a grade");
     $this->assertEquals(
       $parsed["score"],
       1,
@@ -63,9 +71,13 @@ class ConfigureTest extends PHPUnit_Framework_TestCase
     // Test a submission that has been manually graded and is incorrect
     $_SESSION['gift_submit'] = $this->submit_GradedWrong;
     $parsed = make_quiz($_SESSION['gift_submit'], $questions, $errors);
-    $this->assertFalse(
+    $this->assertTrue(
       isset($parsed["manual_grade_needed"]),
-      "manual_grade_needed should not be flagged when an essay question has a corresponding {code}-score submit");
+      "manual_grade_needed should exist when an essay question is missing a corresponding {code}-score submit");
+    $this->assertEquals(
+      $parsed["manual_grade_needed"],
+      1,
+      "manual_grade_needed should equal the number of questions awaiting a grade");
     $this->assertEquals(
       $parsed["score"],
       0.5,

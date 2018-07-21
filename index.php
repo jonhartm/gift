@@ -113,6 +113,15 @@ if ( count($_POST) > 0 ) {
         $gradetosend = $oldgrade;
     }
 
+    if (isset($quiz["manual_grade_needed"])) {
+      if ($quiz["manual_grade_needed"] === 1) {
+        $scorestr .= " ".$quiz["manual_grade_needed"]." question ";
+      } else {
+        $scorestr .= " ".$quiz["manual_grade_needed"]." questions ";
+      }
+      $scorestr .= "awaiting manual review by the instructor.";
+    }
+
     // Use LTIX to send the grade back to the LMS.
     $debug_log = array();
     $retval = LTIX::gradeSend($gradetosend, false, $debug_log);
