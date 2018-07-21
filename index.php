@@ -223,30 +223,12 @@ $OUTPUT->footerStart();
 require_once('templates.php');
 
 ?>
+<script type="text/javascript" src="js/quiz_from_template.js"></script>
 <script>
 TEMPLATES = [];
 $(document).ready(function(){
-    $.getJSON('<?= addSession('quiz.php')?>', function(quiz) {
-        window.console && console.log(quiz);
-        for(var i=0; i<quiz.questions.length; i++) {
-            question = quiz.questions[i];
-            type = question.type;
-            console.log(type);
-            if ( TEMPLATES[type] ) {
-                template = TEMPLATES[type];
-            } else {
-                source  = $('#'+type).html();
-                if ( source == undefined ) {
-                    window.console && console.log("Did not find template for question type="+type);
-                    continue;
-                }
-                template = Handlebars.compile(source);
-                TEMPLATES[type] = template;
-            }
-            $('#quiz').append(template(question));
-
-
-        }
+    $.getJSON('<?= addSession('quiz.php')?>', function(quiz_json){
+        make_quiz_from_template(quiz_json);
     }).fail( function() { alert('Unable to load quiz data'); } );
 });
 </script>
