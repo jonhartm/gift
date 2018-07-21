@@ -412,13 +412,6 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
                     // if the manual score is 1, then this question is correct
                     // NOTE: maybe partial credit at some point in the future?
                     $correct = ($submit[$q_code.'-score'] === "1");
-
-                    // Set the score to 1 if the answer is correct, 0 if not
-                    if ($correct) {
-                      $score = 1;
-                    } else {
-                      $score = 0;
-                    }
                 } else {
                     // If there was no manual score...
                     if (isset($retval['manual_grade_needed'])) {
@@ -431,6 +424,14 @@ function make_quiz($submit, $questions, $errors, $seed=-1) {
 
                     // set scored to false - used in the template
                     $nq->scored = false;
+
+                    $correct = false;
+                }
+                // Set the score to 1 if the answer is correct, 0 if not
+                if ($correct) {
+                  $score = 1;
+                } else {
+                  $score = 0;
                 }
 
             }

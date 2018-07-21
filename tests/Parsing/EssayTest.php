@@ -65,7 +65,7 @@ class ConfigureTest extends PHPUnit_Framework_TestCase
       "manual_grade_needed should equal the number of questions awaiting a grade");
     $this->assertEquals(
       $parsed["score"],
-      1,
+      (1/3),
       "make_quiz should skip an essay question when grading if it isn't manually graded");
 
     // Test a submission that has been manually graded and is incorrect
@@ -80,7 +80,7 @@ class ConfigureTest extends PHPUnit_Framework_TestCase
       "manual_grade_needed should equal the number of questions awaiting a grade");
     $this->assertEquals(
       $parsed["score"],
-      0.5,
+      (1/3),
       "make_quiz should grade an essay question as a 0 if the cooresponding {code}-score is not equal to 1");
 
     // Test a submission that has been manually graded and is incorrect
