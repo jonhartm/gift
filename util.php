@@ -60,3 +60,16 @@ function setJSONforResult($json, $result_id)
             ':RID' => $result_id)
     );
 }
+
+function setNoteforResult($note, $result_id)
+{
+    global $CFG, $PDOX;
+
+    $stmt = $PDOX->queryDie(
+        "UPDATE {$CFG->dbprefix}lti_result SET note = :note, updated_at = NOW()
+            WHERE result_id = :RID",
+        array(
+            ':note' => $note,
+            ':RID' => $result_id)
+    );
+}

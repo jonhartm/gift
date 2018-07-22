@@ -15,8 +15,6 @@ if ( count($_POST) > 0 ) {
     // create a new result data array from the POST data
     $result_data = array("when" => time(), "tries" => 9999, "submit" => $_POST);
 
-    // send that result data to the JSON field in this student's row
-    setJSONforResult(json_encode($result_data), $row['result_id']);
 
     // parse the gift and get a grade for this quiz
     $gift = $LINK->getJson();
@@ -25,6 +23,17 @@ if ( count($_POST) > 0 ) {
     parse_gift($gift, $questions, $errors);
     $_SESSION['gift_submit'] = $_POST;
     $quiz = make_quiz($_POST, $questions, $errors);
+
+
+    // send result data to the JSON field in this student's row
+    setJSONforResult(json_encode($result_data), $row['result_id']);
+
+    // Update the note field if there's still a manual grade needed or not
+    if (!isset($quiz['manual_grade_needed'])) {
+        setNoteforResult(NULL, $row['result_id']);
+    } else {
+        setNoteforResult("Manual Grade Needed", $row['result_id']);
+    }
 
     // Update the grade and confirm the change via flash message
     $gradetosend = $quiz['score']*1.0;
