@@ -1,8 +1,10 @@
 <?php
 
-function htmlent_utf8($string) {
-    return htmlentities($string,ENT_QUOTES,$encoding = 'UTF-8');
-}
+use \Tsugi\Core\Result;
+
+// function htmlent_utf8($string) {
+//     return htmlentities($string,ENT_QUOTES,$encoding = 'UTF-8');
+// }
 
 function curPageURL() {
     $pageURL = (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on")
@@ -46,3 +48,15 @@ function libxml_display_error($error)
     return $return; 
 } 
 
+function setJSONforResult($json, $result_id)
+{
+    global $CFG, $PDOX;
+
+    $stmt = $PDOX->queryDie(
+        "UPDATE {$CFG->dbprefix}lti_result SET json = :json, updated_at = NOW()
+            WHERE result_id = :RID",
+        array(
+            ':json' => $json,
+            ':RID' => $result_id)
+    );
+}

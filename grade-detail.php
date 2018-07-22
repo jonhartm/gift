@@ -1,9 +1,9 @@
 <?php
 require_once "../config.php";
 require_once "parse.php";
+require_once "util.php";
 
 use \Tsugi\Core\LTIX;
-use \Tsugi\Core\Result;
 use \Tsugi\Grades\GradeUtil;
 
 $LAUNCH = LTIX::requireData();
@@ -12,14 +12,28 @@ $LAUNCH = LTIX::requireData();
 $row = GradeUtil::gradeLoad($_REQUEST['user_id']);
 
 if ( count($_POST) > 0 ) {
-    // Make a new student result so we can store the modified json data
-    $student_result = new \Tsugi\Core\Result();
-    $student_result->launch = $TSUGI_LAUNCH;
-    $student_result->id = $row['result_id'];
+    // create a new result data array from the POST data
+    $result_data = array("when" => time(), "tries" => 9999, "submit" => $_POST);
 
-    $result_data = array("when" => time(), "tries" => 1, "submit" => $_POST);
+    // send that result data to the JSON field in this student's row
+    setJSONforResult(json_encode($result_data), $row['result_id']);
 
-    $student_result->setJson(json_encode($result_data));
+    // parse the gift and get a grade for this quiz
+    $gift = $LINK->getJson();
+    $questions = array();
+    $errors = array();
+    parse_gift($gift, $questions, $errors);
+    $_SESSION['gift_submit'] = $_POST;
+    $quiz = make_quiz($_POST, $questions, $errors);
+
+    // Update the grade and confirm the change via flash message
+    $gradetosend = $quiz['score']*1.0;
+    $_SESSION['success'] = "Student grade updated. New grade: ".$gradetosend;
+
+    // Use LTIX to send the grade back to the LMS.
+    $debug_log = array();
+    $RESULT->gradeSend($gradetosend, array("result_id" => $row['result_id']), $debug_log);
+    $_SESSION['debug_log'] = $debug_log;
 
     header( 'Location: '.addSession('grade-detail.php?user_id='.$row['user_id']) ) ;
     return;
