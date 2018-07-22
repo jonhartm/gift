@@ -63,7 +63,7 @@ $_SESSION['gift_submit'] = (array)$json->submit;
 <form method="post">
 <ol id="quiz">
 </ol>
-<input type="submit" value="Submit Modifications">
+<input type="submit" class="btn btn-default" value="Submit Modifications">
 </form>
 <br>
 <?php
