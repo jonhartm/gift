@@ -12,9 +12,16 @@ $LAUNCH = LTIX::requireData();
 $row = GradeUtil::gradeLoad($_REQUEST['user_id']);
 
 if ( count($_POST) > 0 ) {
-    // create a new result data array from the POST data
-    $result_data = array("when" => time(), "tries" => 9999, "submit" => $_POST);
+    // get the result submitted by the student so we can save some of the info
+    $student_old_result = getJSONforResult($row['result_id']);
 
+    // create a new result data array from the POST data
+    $result_data = array(
+      "when" => $student_old_result->when,
+      "tries" => $student_old_result->tries,
+      "submit" => $_POST,
+      "instr_review_when" => time()
+    );
 
     // parse the gift and get a grade for this quiz
     $gift = $LINK->getJson();
@@ -23,7 +30,6 @@ if ( count($_POST) > 0 ) {
     parse_gift($gift, $questions, $errors);
     $_SESSION['gift_submit'] = $_POST;
     $quiz = make_quiz($_POST, $questions, $errors);
-
 
     // send result data to the JSON field in this student's row
     setJSONforResult(json_encode($result_data), $row['result_id']);

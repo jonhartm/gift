@@ -25,28 +25,41 @@ function var_dump_pre($variable, $print=true) {
     return $result;
 }
 
-function libxml_display_error($error) 
-{ 
-    $return = "<br/>\n"; 
-    switch ($error->level) { 
-    case LIBXML_ERR_WARNING: 
-        $return .= "<b>Warning $error->code</b>: "; 
-        break; 
-    case LIBXML_ERR_ERROR: 
-        $return .= "<b>Error $error->code</b>: "; 
-        break; 
-    case LIBXML_ERR_FATAL: 
-        $return .= "<b>Fatal Error $error->code</b>: "; 
-        break; 
-    } 
-    $return .= trim($error->message); 
-    if ($error->file) { 
-        $return .= " in <b>$error->file</b>"; 
-    } 
-    $return .= " on line <b>$error->line</b>\n"; 
+function libxml_display_error($error)
+{
+    $return = "<br/>\n";
+    switch ($error->level) {
+    case LIBXML_ERR_WARNING:
+        $return .= "<b>Warning $error->code</b>: ";
+        break;
+    case LIBXML_ERR_ERROR:
+        $return .= "<b>Error $error->code</b>: ";
+        break;
+    case LIBXML_ERR_FATAL:
+        $return .= "<b>Fatal Error $error->code</b>: ";
+        break;
+    }
+    $return .= trim($error->message);
+    if ($error->file) {
+        $return .= " in <b>$error->file</b>";
+    }
+    $return .= " on line <b>$error->line</b>\n";
 
-    return $return; 
-} 
+    return $return;
+}
+
+function getJSONforResult($result_id)
+{
+    global $CFG, $PDOX;
+
+    $stmt = $PDOX->queryDie(
+        "SELECT json FROM {$CFG->dbprefix}lti_result
+            WHERE result_id = :RID",
+        array(':RID' => $result_id)
+    );
+    $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+    return json_decode($row['json']);
+}
 
 function setJSONforResult($json, $result_id)
 {
