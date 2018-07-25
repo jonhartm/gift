@@ -50,10 +50,17 @@ $(document).on('click','.btn',function(){
         score = 0;
     }
 
+    // create a hidden input with the score for this question so it gets sent with the submit
+    var result_id = question.find($("input[type='hidden'][name='result_id']")).val();
+    if (result_id != "disabled") {
+        var hidden_input = "<input type='hidden' name="+result_id+"|"+question_code+"-score value="+score+">";
+    } else {
+        var hidden_input = "<input type='hidden' name="+question_code+"-score value="+score+">";
+    }
+
     // just in case, remove any hidden inputs for score this question has already
     question.find($("input[type='hidden'][name$='-score']")).remove();
 
-    // add a hidden input with the score for this question so it gets sent with the submit
-    var hidden_input = "<input type='hidden' name="+question_code+"-score value="+score+">";
+    // add the hidden input
     question.append(hidden_input);
 });

@@ -58,6 +58,7 @@
 </script>
 <script id="essay_question" type="text/x-handlebars-template">
   <li id="{{code}}">
+  <input type="hidden" name="result_id" value={{result_id}} disabled>
     <p>
       {{#unless scored}}
           <i class="fa fa-info-circle text-info score_marker"></i>
@@ -65,10 +66,10 @@
 
       {{#if scored}}{{#if correct}}
           <i class="fa fa-check text-success score_marker"></i>
-          <input type='hidden' name="{{code}}-score" value="{{value.score}}">
+          <input type='hidden' name="{{#if result_id}}{{result_id}}|{{/if}}{{code}}-score" value="{{value.score}}">
       {{else}}
           <i class="fa fa-times text-danger score_marker"></i>
-          <input type='hidden' name="{{code}}-score" value="{{value.score}}">
+          <input type='hidden' name="{{#if result_id}}{{result_id}}|{{/if}}{{code}}-score" value="{{value.score}}">
       {{/if}} {{/if}}
 
       {{{question}}}
@@ -80,7 +81,7 @@
 
     </p>
     <p>
-      <textarea rows="4" cols="80" name="{{code}}" {{#if review}}readonly{{/if}}>{{value.submitted}}</textarea>
+      <textarea rows="4" cols="80" name="{{#if result_id}}{{result_id}}|{{/if}}{{code}}" {{#if review}}readonly{{/if}}>{{value.submitted}}</textarea>
     </p>
   </li>
 </script>

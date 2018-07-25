@@ -102,7 +102,11 @@ $(document).ready(function(){
           question.question = question_text;
           question.result_id = quiz_json['responses'][i].result_id;
           var vals = new Object();
-          vals.submitted = quiz_json['responses'][i].json.submit[code]
+          vals.submitted = quiz_json['responses'][i].json.submit[code];
+          if (typeof quiz_json['responses'][i].json.submit[code+"-score"] !== "undefined") {
+              question.scored = true;
+              question.correct = quiz_json['responses'][i].json.submit[code+"-score"];
+          }
 
           question.value = vals;
           question.review = true;
