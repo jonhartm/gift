@@ -3,6 +3,8 @@ require_once "../config.php";
 
 use \Tsugi\Core\LTIX;
 
+header("Content-type:application/json");
+
 $LTI = LTIX::session_start();
 
 // Get the JSON of all results that are flagged as "Manual Grade Needed"
@@ -15,6 +17,13 @@ $results = $PDOX->allRowsDie(
 // decode the JSON for each result
 for ($i=0; $i < sizeof($results); $i++) {
     $results[$i]['json'] = json_decode($results[$i]['json']);
+    $response = array();
+    foreach ($results[$i]['json']->submit as $key => $value) {
+        if (substr($key, 0, 11) === $_GET['id']) {
+            $response[$key] = $value;
+        }
+    }
+    $results[$i]['json']->submit = $response;
 }
 
 $return['responses'] = $results;
