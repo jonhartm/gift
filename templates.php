@@ -58,7 +58,7 @@
 </script>
 <script id="essay_question" type="text/x-handlebars-template">
   <li id="{{code}}">
-  <input type="hidden" name="result_id" value={{result_id}} disabled>
+  <input type="hidden" name="result_id" value={{#if result_id}}{{result_id}}{{else}}not_used{{/if}} disabled>
     <p>
       {{#unless scored}}
           <i class="fa fa-info-circle text-info score_marker"></i>
