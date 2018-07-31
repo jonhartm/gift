@@ -101,16 +101,18 @@ $OUTPUT->bodyStart();
 
 <?php
 
-echo("<select id='question_select'>");
-foreach ($manual_graded_questions as $code => $title) {
-    echo("<option value='$code'>$title</option>");
+echo("<select class='form-control' id='question_select'>");
+foreach ($manual_graded_questions as $question) {
+    echo("<option value='{$question["code"]}'>{$question["text"]}</option>");
 }
 echo("</select>");
 
 ?>
+<br>
 <form method="post">
 <ol id="quiz">
 </ol>
+<input type="submit" class="btn btn-default" value="Submit Grades">
 </form>
 <?php
 
@@ -153,7 +155,8 @@ $(document).ready(function(){
           vals.submitted = quiz_json['responses'][i].json.submit[code];
           if (typeof quiz_json['responses'][i].json.submit[code+"-score"] !== "undefined") {
               question.scored = true;
-              question.correct = quiz_json['responses'][i].json.submit[code+"-score"];
+              question.correct = (quiz_json['responses'][i].json.submit[code+"-score"]=="1");
+              vals.score = quiz_json['responses'][i].json.submit[code+"-score"];
           }
 
           question.value = vals;
