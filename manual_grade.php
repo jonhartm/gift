@@ -127,44 +127,53 @@ require_once('templates.php');
 <script>
 TEMPLATES = [];
 $(document).ready(function(){
-    $.getJSON('<?= addSession("get_manual_grade_responses.php?id={$current_question["code"]}&text={$current_question["text"]}&type={$current_question["type"]}")?>', function(quiz_json){
-        console.log(quiz_json);
-        var code = quiz_json['question_code'];
-        var type = quiz_json['question_type'];
-        var question_text = quiz_json['question_text']
-
-        if ( TEMPLATES[type] ) {
-            template = TEMPLATES[type];
-        } else {
-            source  = $('#'+type).html();
-            if ( source == undefined ) {
-                window.console && console.log("Did not find template for question type="+type);
-                return;
-            }
-            template = Handlebars.compile(source);
-            TEMPLATES[type] = template;
-        }
-
-        for (var i = 0; i < quiz_json.responses.length; i++) {
-          var question = new Object();
-          question.code = code;
-          question.type = type;
-          question.question = question_text;
-          question.result_id = quiz_json['responses'][i].result_id;
-          var vals = new Object();
-          vals.submitted = quiz_json['responses'][i].json.submit[code];
-          if (typeof quiz_json['responses'][i].json.submit[code+"-score"] !== "undefined") {
-              question.scored = true;
-              question.correct = (quiz_json['responses'][i].json.submit[code+"-score"]=="1");
-              vals.score = quiz_json['responses'][i].json.submit[code+"-score"];
-          }
-
-          question.value = vals;
-          question.review = true;
-          $('#quiz').append(template(question));
-        }
+    $.getJSON('<?= addSession("get_manual_grade_responses.php")?>',
+        {
+            id: '<?= $current_question["code"] ?>',
+            text: '<?= $current_question["text"] ?>',
+            type: '<?= $current_question["type"] ?>'
+        }, function(quiz_json){
+            make_review_quiz_from_template(quiz_json)
     }).fail( function() { alert('Unable to load quiz data'); } );
 });
+
+function make_review_quiz_from_template(quiz_json) {
+  console.log(quiz_json);
+  var code = quiz_json['question_code'];
+  var type = quiz_json['question_type'];
+  var question_text = quiz_json['question_text']
+
+  if ( TEMPLATES[type] ) {
+      template = TEMPLATES[type];
+  } else {
+      source  = $('#'+type).html();
+      if ( source == undefined ) {
+          window.console && console.log("Did not find template for question type="+type);
+          return;
+      }
+      template = Handlebars.compile(source);
+      TEMPLATES[type] = template;
+  }
+
+  for (var i = 0; i < quiz_json.responses.length; i++) {
+    var question = new Object();
+    question.code = code;
+    question.type = type;
+    question.question = question_text;
+    question.result_id = quiz_json['responses'][i].result_id;
+    var vals = new Object();
+    vals.submitted = quiz_json['responses'][i].json.submit[code];
+    if (typeof quiz_json['responses'][i].json.submit[code+"-score"] !== "undefined") {
+        question.scored = true;
+        question.correct = (quiz_json['responses'][i].json.submit[code+"-score"]=="1");
+        vals.score = quiz_json['responses'][i].json.submit[code+"-score"];
+    }
+
+    question.value = vals;
+    question.review = true;
+    $('#quiz').append(template(question));
+  }
+}
 </script>
 <?php
 $OUTPUT->footerEnd();
