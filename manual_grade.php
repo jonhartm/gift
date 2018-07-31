@@ -16,6 +16,54 @@ $questions = array();
 $errors = array();
 parse_gift($gift, $questions, $errors);
 
+// If there is a post
+if ( count($_POST) > 0 ) {
+    // Pull out the scores and associate them in a new array like result_id => score
+    $results = array();
+    $question_code = False;
+    foreach ($_POST as $key => $value ) {
+        if ($key === "PHPSESSID") continue;
+
+        // get the question code for later if we don't have it already
+        if (!$question_code) {
+            $question_code = explode("|", $key)[1]; // Get the part of the q_code after the "|"
+            $question_code = explode("-", $question_code)[0]; // But before any "-score"
+        }
+
+        // the post key should always start like "result_id|question_code"
+        $result_id = explode("|", $key)[0];
+
+        // if the post key ends in "-score", it's a score value for this question and we should store with this result_id
+        if (strpos($key, "-score") > 0) {
+            $results[$result_id] = $value;
+        }
+    }
+
+    // iterate through our results and update the grades for each
+    foreach ($results as $result_id => $score) {
+        // get the stored JSON for this student
+        $student_result = getJSONforResult($result_id);
+        // update that JSON to include the manual grade for this question
+        $student_result->submit->{$question_code.'-score'} = $score;
+        // set the JSON along with the updated manual grade
+        setJSONforResult(json_encode($student_result), $result_id);
+
+        // set the gift submit to this student's result json->submit
+        $_SESSION['gift_submit'] = (array)$student_result->submit;
+        // grade the quiz using the gift we parsed earlier
+        $quiz = make_quiz($_SESSION['gift_submit'], $questions, $errors);
+
+        // Update the grade and confirm the change via flash message
+        $gradetosend = $quiz['score']*1.0;
+
+        // Use LTIX to send the grade back to the LMS.
+        $debug_log = array();
+        $RESULT->gradeSend($gradetosend, array("result_id" => $result_id), $debug_log);
+        $_SESSION['debug_log'] = $debug_log;
+    }
+    header( 'Location: '.addSession('manual_grade.php') ) ;
+}
+
 // Pull out questions which might need to be manually graded
 $manual_graded_questions = array();
 foreach ($questions as $question) {
