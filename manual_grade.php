@@ -61,6 +61,8 @@ if ( count($_POST) > 0 ) {
         $RESULT->gradeSend($gradetosend, array("result_id" => $result_id), $debug_log);
         $_SESSION['debug_log'] = $debug_log;
     }
+    // Save the current question code as a session variable so we can load the page correctly
+    $_SESSION['question_code'] = $question_code;
     header( 'Location: '.addSession('manual_grade.php') ) ;
 }
 
@@ -101,7 +103,13 @@ $OUTPUT->bodyStart();
 
 echo("<select class='form-control' id='question_select'>");
 foreach ($manual_graded_questions as $question) {
-    echo("<option value='{$question["code"]}'>{$question["text"]}</option>");
+    if (isset($_SESSION['question_code']) && $_SESSION['question_code']==$question["code"]) {
+      // if this is the question that we just submitted, make sure it's selected
+      // the quiz questions that are reviewed are based on which of these is selected
+      echo("<option value='{$question["code"]}' selected>{$question["text"]}</option>");
+    } else {
+      echo("<option value='{$question["code"]}'>{$question["text"]}</option>");
+    }
 }
 echo("</select>");
 
