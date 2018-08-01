@@ -8,6 +8,7 @@ require_once "util.php";
 use \Tsugi\Core\LTIX;
 
 $LAUNCH = LTIX::requireData();
+if ( ! $USER->instructor ) die("Requires instructor role");
 $p = $CFG->dbprefix;
 
 // Parse the gift
