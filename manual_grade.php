@@ -91,6 +91,16 @@ if ( count($_POST) > 0 ) {
 
     if (isset($_POST['submit_and_next'])) {
         // The user wants to move to the next question
+        // increment the counter until we reach the question we're on
+        $count = 0;
+        foreach ($manual_graded_questions as $question) {
+            $count++;
+            if ($question['code'] == $question_code) {
+                break;
+            }
+        }
+        // the counter should be the index of the next manual question
+        $_SESSION['question_code'] = $manual_graded_questions[$count]['code'];
     } else {
         // Save the current question code as a session variable so we can load the page correctly
         $_SESSION['question_code'] = $question_code;
