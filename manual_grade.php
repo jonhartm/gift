@@ -16,6 +16,33 @@ $questions = array();
 $errors = array();
 parse_gift($gift, $questions, $errors);
 
+// Pull out questions which might need to be manually graded
+$manual_graded_questions = array();
+foreach ($questions as $question) {
+    if ($question->type == "essay_question") {
+        array_push(
+          $manual_graded_questions,
+          array(
+            "code" => $question->code,
+            "text" => "{$question->name}-{$question->question}",
+            "type" => $question->type
+          )
+        );
+    }
+}
+
+// Get the JSON of all results that are flagged as "Manual Grade Needed"
+$results = $PDOX->allRowsDie(
+    "SELECT result_id, json FROM `lti_result`
+        WHERE link_id = :LI AND note = 'Manual Grade Needed'",
+    array(':LI' => $LINK->id)
+);
+
+// decode the JSON for each result
+for ($i=0; $i < sizeof($results); $i++) {
+    $results[$i]['json'] = json_decode($results[$i]['json']);
+}
+
 // If there is a post
 if ( count($_POST) > 0 ) {
     // Pull out the scores and associate them in a new array like result_id => score
@@ -61,36 +88,14 @@ if ( count($_POST) > 0 ) {
         $RESULT->gradeSend($gradetosend, array("result_id" => $result_id), $debug_log);
         $_SESSION['debug_log'] = $debug_log;
     }
-    // Save the current question code as a session variable so we can load the page correctly
-    $_SESSION['question_code'] = $question_code;
-    header( 'Location: '.addSession('manual_grade.php') ) ;
-}
 
-// Pull out questions which might need to be manually graded
-$manual_graded_questions = array();
-foreach ($questions as $question) {
-    if ($question->type == "essay_question") {
-        array_push(
-          $manual_graded_questions,
-          array(
-            "code" => $question->code,
-            "text" => "{$question->name}-{$question->question}",
-            "type" => $question->type
-          )
-        );
+    if (isset($_POST['submit_and_next'])) {
+        // The user wants to move to the next question
+    } else {
+        // Save the current question code as a session variable so we can load the page correctly
+        $_SESSION['question_code'] = $question_code;
     }
-}
-
-// Get the JSON of all results that are flagged as "Manual Grade Needed"
-$results = $PDOX->allRowsDie(
-    "SELECT result_id, json FROM `lti_result`
-        WHERE link_id = :LI AND note = 'Manual Grade Needed'",
-    array(':LI' => $LINK->id)
-);
-
-// decode the JSON for each result
-for ($i=0; $i < sizeof($results); $i++) {
-    $results[$i]['json'] = json_decode($results[$i]['json']);
+    header( 'Location: '.addSession('manual_grade.php') ) ;
 }
 
 // View
@@ -98,10 +103,11 @@ $OUTPUT->header();
 $OUTPUT->bodyStart();
 
 ?>
-
+<a href="grades.php" class="btn btn-primary">Return to All Grades</a>
+<hr>
+<div class="input-group">
+  <select class='form-control' id='question_select'>
 <?php
-
-echo("<select class='form-control' id='question_select'>");
 foreach ($manual_graded_questions as $question) {
     if (isset($_SESSION['question_code']) && $_SESSION['question_code']==$question["code"]) {
       // if this is the question that we just submitted, make sure it's selected
@@ -111,14 +117,17 @@ foreach ($manual_graded_questions as $question) {
       echo("<option value='{$question["code"]}'>{$question["text"]}</option>");
     }
 }
-echo("</select>");
-
 ?>
+  </select>
+</div>
 <br>
 <form method="post">
 <ol id="quiz">
 </ol>
-<input type="submit" class="btn btn-default" value="Submit Grades">
+<input type="submit" class="btn btn-success" value="Submit Grades">
+<button type="submit" class="btn btn-success" name="submit_and_next" id="btn_submit_and_next">
+   Submit and Go To Next Question <i class="fa fa-arrow-right"></i>
+</button>
 </form>
 <?php
 
@@ -185,6 +194,14 @@ function make_quiz_review(quiz_json) {
             $('#quiz').append(template(question));
           }
     }).fail( function() { alert('Unable to load quiz data'); } );
+
+    // Hide the Submit and Next button if we've selected the last question
+    if ($("#question_select").prop('selectedIndex') >= ($("#question_select option").length-1)) {
+        $("#btn_submit_and_next").hide();
+    } else {
+        $("#btn_submit_and_next").show();
+    }
+
 }
 </script>
 <?php
