@@ -88,6 +88,13 @@ if ( count($_POST) > 0 ) {
         $debug_log = array();
         $RESULT->gradeSend($gradetosend, array("result_id" => $result_id), $debug_log);
         $_SESSION['debug_log'] = $debug_log;
+
+        // Update the note field if there's still a manual grade needed or not
+        if (!isset($quiz['manual_grade_needed'])) {
+            setNoteforResult(NULL, $result_id);
+        } else {
+            setNoteforResult("Manual Grade Needed", $result_id);
+        }
     }
 
     if (isset($_POST['submit_and_next'])) {
